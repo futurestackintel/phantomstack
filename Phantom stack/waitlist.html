@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO meta -->
+  <title>PhantomCheck — Know What The Internet Knows About You</title>
+  <meta name="description" content="PhantomCheck is a free AI-powered OSINT tool that reveals your digital exposure in three modes — plain English for regular people, professional reports for businesses, raw data for security teams.">
+  
+  <!-- Open Graph — controls how the link looks when shared on social media -->
+  <meta property="og:title" content="PhantomCheck — Know What The Internet Knows About You">
+  <meta property="og:description" content="Free AI-powered security reconnaissance. Explorer mode. Analyst mode. Operator mode. One tool for everyone.">
+  <meta property="og:type" content="website">
+  
+  <!-- Stylesheets — load global first, then page-specific -->
+  <link rel="stylesheet" href="assets/css/global.css">
+  <link rel="stylesheet" href="assets/css/waitlist.css">
+</head>
+
+<body>
+  <main class="waitlist-page">
+    <div class="waitlist-content">
+
+      <!-- Brand -->
+      <div class="brand">
+        <span class="brand-logo">PhantomCheck</span>
+        <span class="brand-tagline">by FutureStack Intelligence</span>
+      </div>
+
+      <!-- Main headline -->
+      <h1 class="waitlist-headline">
+        The internet has a file on you.<br>
+        <span>Find out exactly what's in it.</span>
+      </h1>
+
+      <p class="waitlist-subtext">
+        PhantomCheck is an AI-powered OSINT tool that checks every major breach database, 
+        dark web source and security feed — then explains what it found in plain English, 
+        professional reports, or raw technical data. Free. Browser-based. Built for everyone.
+      </p>
+
+      <!-- Feature pills — quick visual scan of capabilities -->
+      <div class="features-strip">
+        <div class="feature-pill"><span class="pill-dot">◆</span>Breach Detection</div>
+        <div class="feature-pill"><span class="pill-dot">◆</span>Dark Web Scan</div>
+        <div class="feature-pill"><span class="pill-dot">◆</span>IP Reputation</div>
+        <div class="feature-pill"><span class="pill-dot">◆</span>Domain Intelligence</div>
+        <div class="feature-pill"><span class="pill-dot">◆</span>AI Interpretation</div>
+        <div class="feature-pill"><span class="pill-dot">◆</span>African Breach Sources</div>
+        <div class="feature-pill"><span class="pill-dot">◆</span>Zero Jargon Mode</div>
+        <div class="feature-pill"><span class="pill-dot">◆</span>Free Forever Tier</div>
+      </div>
+
+      <!-- Waitlist form — shown by default -->
+      <div id="waitlist-form-container">
+        <form class="waitlist-form" id="waitlistForm" novalidate>
+          
+          <!-- Honeypot field — bots fill this, humans don't see it -->
+          <input 
+            type="text" 
+            name="website" 
+            class="honeypot-field" 
+            tabindex="-1" 
+            autocomplete="off"
+            aria-hidden="true"
+          >
+
+          <div class="input-row">
+            <input 
+              type="email" 
+              id="emailInput"
+              name="email"
+              class="waitlist-input" 
+              placeholder="your@email.com"
+              required
+              autocomplete="email"
+            >
+            <button type="submit" class="btn-join">
+              JOIN WAITLIST
+            </button>
+          </div>
+        </form>
+
+        <p class="signup-counter">
+          <strong id="signupCount">247</strong> people already on the list. 
+          Launching at 500.
+        </p>
+
+        <p class="privacy-note">
+          No spam. One launch email when we go live. That's it.
+          Read our <a href="pages/privacy.html">privacy policy</a>.
+        </p>
+      </div>
+
+      <!-- Success state — hidden until form submitted -->
+      <div class="waitlist-success" id="successState">
+        <div class="success-icon">🔍</div>
+        <div class="success-title">You're on the list.</div>
+        <p class="success-text">
+          We'll email you the moment PhantomCheck goes live.<br>
+          You'll be one of the first 500 people to access it.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <footer class="waitlist-footer">
+        Built by <a href="https://github.com/YOUR-GITHUB-USERNAME" target="_blank">FutureStack Intelligence</a> · 
+        Ilorin, Nigeria · 
+        <a href="pages/privacy.html">Privacy</a> · 
+        <a href="pages/terms.html">Terms</a>
+      </footer>
+
+    </div>
+  </main>
+
+  <script>
+    // ============================================
+    // WAITLIST FORM LOGIC
+    // Simple, no dependencies, explained line by line
+    // ============================================
+
+    const form = document.getElementById('waitlistForm');
+    const emailInput = document.getElementById('emailInput');
+    const formContainer = document.getElementById('waitlist-form-container');
+    const successState = document.getElementById('successState');
+    const signupCount = document.getElementById('signupCount');
+
+    // Animate the counter up slowly to create social proof feeling
+    // Starts at 247, counts up to a random number between 248-312
+    function animateCounter() {
+      const start = 247;
+      const end = start + Math.floor(Math.random() * 65) + 1;
+      let current = start;
+      
+      const timer = setInterval(() => {
+        current++;
+        signupCount.textContent = current;
+        if (current >= end) clearInterval(timer);
+      }, 80); // increments every 80ms — fast enough to feel live, slow enough to read
+    }
+
+    // Run counter animation when page loads
+    animateCounter();
+
+    // Form submission handler
+    form.addEventListener('submit', function(event) {
+      // Prevent the browser's default form submission (which would reload the page)
+      event.preventDefault();
+
+      // HONEYPOT CHECK — if the hidden 'website' field has any value, this is a bot
+      const honeypot = form.querySelector('input[name="website"]');
+      if (honeypot && honeypot.value !== '') {
+        // Silently do nothing — bots don't know they failed
+        return;
+      }
+
+      const email = emailInput.value.trim();
+
+      // Basic email format validation
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        emailInput.style.borderColor = 'var(--critical)';
+        emailInput.placeholder = 'Please enter a valid email';
+        setTimeout(() => {
+          emailInput.style.borderColor = '';
+          emailInput.placeholder = 'your@email.com';
+        }, 2000); // reset after 2 seconds
+        return;
+      }
+
+      // Store in localStorage so we know they already signed up
+      // This prevents the same person signing up multiple times
+      localStorage.setItem('phantomcheck_waitlist', email);
+      localStorage.setItem('phantomcheck_waitlist_date', Date.now());
+
+      // Hide form, show success message
+      formContainer.style.display = 'none';
+      successState.classList.add('visible');
+
+      // In a real deployment you would also send this to Netlify Forms
+      // or a service like ConvertKit here. We'll add that in Module 15.
+    });
+
+    // If user already signed up before, show success immediately
+    if (localStorage.getItem('phantomcheck_waitlist')) {
+      formContainer.style.display = 'none';
+      successState.classList.add('visible');
+    }
+  </script>
+</body>
+</html>

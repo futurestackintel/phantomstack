@@ -1,0 +1,13 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/"
+  to = "/waitlist.html"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/app"
+  to = "/app.html"
+  status = 200

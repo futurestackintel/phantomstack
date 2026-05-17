@@ -1,0 +1,116 @@
+/* ============================================
+   PHANTOMCHECK — GLOBAL STYLES
+   All colors, fonts and resets live here.
+   Every other CSS file uses these variables.
+   ============================================ */
+
+/* Import fonts from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+/* CSS Custom Properties — change a color here, it changes everywhere */
+:root {
+  /* Core colors */
+  --bg-deep:        #050816;   /* Main page background */
+  --bg-card:        #080d22;   /* Card and panel backgrounds */
+  --bg-elevated:    #0d1533;   /* Slightly raised surfaces */
+  --border-subtle:  #1a2444;   /* Subtle borders */
+  --border-active:  #00eaff44; /* Borders on focused/active elements */
+
+  /* Brand colors */
+  --cyan:           #00eaff;   /* Primary accent — PhantomCheck cyan */
+  --cyan-dim:       #00eaff88; /* Dimmed cyan for secondary uses */
+  --cyan-glow:      #00eaff22; /* Glow/shadow color */
+  --purple:         #7b2ff7;   /* Secondary accent */
+  --purple-dim:     #7b2ff788;
+  --purple-glow:    #7b2ff722;
+
+  /* Severity colors */
+  --safe:           #00ff88;   /* Green — clean result */
+  --warning:        #ffaa00;   /* Yellow — needs attention */
+  --critical:       #ff3366;   /* Red — serious risk */
+
+  /* Text colors */
+  --text-primary:   #e8f4ff;   /* Main readable text */
+  --text-secondary: #7a9cc4;   /* Supporting text, labels */
+  --text-muted:     #3d5a7a;   /* Placeholder text, disabled states */
+
+  /* Typography */
+  --font-display:  'Orbitron', sans-serif;   /* Headers, logo, mode names */
+  --font-body:     'Rajdhani', sans-serif;   /* Body text, reports */
+
+  /* Spacing scale */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  40px;
+  --space-2xl: 64px;
+
+  /* Border radius */
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  16px;
+  --radius-xl:  24px;
+}
+
+/* ---- Reset ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  min-height: 100vh;
+  /* Subtle animated background gradient */
+  background-image: 
+    radial-gradient(ellipse at 20% 50%, #0d0a2e 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, #060d28 0%, transparent 60%);
+}
+
+/* ---- Typography base ---- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+a {
+  color: var(--cyan);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* ---- Utility classes ---- */
+.text-cyan    { color: var(--cyan); }
+.text-purple  { color: var(--purple); }
+.text-safe    { color: var(--safe); }
+.text-warning { color: var(--warning); }
+.text-critical{ color: var(--critical); }
+.text-muted   { color: var(--text-secondary); }
+
+.hidden { display: none !important; }
+
+/* ---- Scrollbar styling ---- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-card); }
+::-webkit-scrollbar-thumb { 
+  background: var(--border-subtle); 
+  border-radius: 3px; 
+}
+::-webkit-scrollbar-thumb:hover { background: var(--cyan-dim); }
