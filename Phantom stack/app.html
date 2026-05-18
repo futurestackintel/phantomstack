@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PhantomCheck — OSINT Reconnaissance</title>
-  <meta name="description" content="Free AI-powered OSINT tool. BYOK. Adaptive output modes for security professionals, analysts and non-technical users.">
+  <meta name="description" content="Free open-source AI-powered OSINT tool. BYOK. Three adaptive output modes. Africa-first scanning.">
   <link rel="stylesheet" href="assets/css/global.css">
   <link rel="stylesheet" href="assets/css/app.css">
 </head>
@@ -18,11 +18,11 @@
         Phantom<span>Check</span>
       </a>
       <div class="nav-links">
-        <!-- Settings opens BYOK panel — primary CTA for MVP -->
         <button class="nav-link" id="settingsBtn">⚙ API Keys</button>
         <a href="https://github.com/futurestackintel/phantomcheck" 
            target="_blank" class="nav-link">GitHub</a>
-        <a href="/waitlist.html" class="nav-link">Waitlist</a>
+        <a href="https://github.com/sponsors/futurestackintel" 
+           target="_blank" class="btn-sponsor">♥ Sponsor</a>
       </div>
     </div>
   </nav>
@@ -30,36 +30,30 @@
   <!-- ========== HERO ========== -->
   <section class="hero">
     <div class="hero-inner">
-      <div class="hero-badge">OPEN SOURCE · FREE · BYOK</div>
+      <div class="hero-badge">FREE · OPEN SOURCE · BYOK · AFRICA-FIRST</div>
       <h1 class="hero-title">
-        Reconnaissance that speaks<br>
-        <span class="hero-title-accent">your language.</span>
+        What does the internet<br>
+        <span class="hero-title-accent">know about your target?</span>
       </h1>
       <p class="hero-subtitle">
-        Scan any domain, email or IP against multiple security databases simultaneously.
-        Claude AI interprets everything in three completely different modes —
-        plain English, professional report, or raw technical data.
-        Bring your own API keys. Zero hosting cost to you or us.
+        Scan any domain, email or IP against multiple security databases simultaneously. 
+        Your API keys stay in your browser — nothing touches our servers because 
+        we don't have any. Three adaptive output modes for every audience.
       </p>
+
+      <!-- BYOK Status Bar — shows which APIs are ready -->
+      <div class="api-status-bar" id="apiStatusBar">
+        <div class="api-status-label">API STATUS</div>
+        <div class="api-status-pills" id="apiStatusPills">
+          <!-- Rendered by JS on load -->
+        </div>
+        <button class="api-status-setup" id="apiStatusSetupBtn">
+          + Setup API Keys
+        </button>
+      </div>
+
     </div>
   </section>
-
-  <!-- ========== BYOK STATUS BAR ========== -->
-  <!-- 
-    This bar shows users at a glance which APIs are active.
-    In Version 2 this becomes a "Connected APIs" bar fed by backend.
-    For now it reads from localStorage BYOK keys.
-  -->
-  <div class="byok-bar" id="byokBar">
-    <div class="byok-bar-inner">
-      <span class="byok-bar-label">ACTIVE APIS:</span>
-      <div class="byok-pills" id="byokPills">
-        <!-- Populated by app.js on load -->
-        <span class="byok-pill inactive">No API keys configured</span>
-      </div>
-      <button class="byok-bar-cta" id="byokBarBtn">+ Add API Keys</button>
-    </div>
-  </div>
 
   <!-- ========== MAIN TOOL ========== -->
   <main class="tool-container">
@@ -72,44 +66,39 @@
         <div class="mode-label">Output Mode</div>
         <div class="mode-tabs">
 
-          <button class="mode-tab" data-mode="explorer">
+          <button class="mode-tab active" data-mode="explorer">
             <span class="mode-icon">👁</span>
             <span class="mode-name">Explorer</span>
-            <span class="mode-desc">Plain English</span>
-            <!-- 
-              Version 2 note: Explorer mode will be the primary mode 
-              for non-technical users once backend handles API keys seamlessly.
-              For MVP it works but requires user to have Claude API key.
-            -->
+            <span class="mode-desc">Plain English — for anyone</span>
           </button>
 
           <button class="mode-tab" data-mode="analyst">
             <span class="mode-icon">📊</span>
             <span class="mode-name">Analyst</span>
-            <span class="mode-desc">Pro Report</span>
+            <span class="mode-desc">Pro report — for IT teams</span>
           </button>
 
-          <button class="mode-tab active" data-mode="operator">
+          <button class="mode-tab" data-mode="operator">
             <span class="mode-icon">⚡</span>
             <span class="mode-name">Operator</span>
-            <span class="mode-desc">Raw Data</span>
-            <!-- Operator is default for MVP — primary audience is security pros -->
+            <span class="mode-desc">Raw data — for pentesters</span>
           </button>
 
         </div>
 
-        <!-- Auto-suggestion strip — shown after input type detected -->
-        <div class="mode-suggestion hidden" id="modeSuggestion">
-          <span class="suggestion-icon">💡</span>
-          <span class="suggestion-text" id="suggestionText"></span>
-          <button class="suggestion-apply" id="suggestionApply">Switch</button>
+        <!-- Mode description — updates when mode changes -->
+        <div class="mode-context" id="modeContext">
+          <span class="mode-context-text" id="modeContextText">
+            Explorer mode explains findings in plain English with zero jargon. 
+            Ideal for business owners, individuals and non-technical users.
+          </span>
         </div>
       </div>
 
       <!-- Search Input -->
       <div class="search-area">
         <div class="search-input-wrapper">
-          <div class="search-type-badge" id="inputTypeBadge">TARGET</div>
+          <div class="search-type-badge" id="inputTypeBadge">ENTER TARGET</div>
           <input
             type="text"
             id="searchInput"
@@ -125,14 +114,14 @@
         </div>
 
         <div class="search-meta">
-          <span class="searches-remaining" id="searchesRemaining">
-            5 scans remaining today
+          <span class="input-hint" id="inputHint">
+            Supports: domains · email addresses · IP addresses
           </span>
-          <span class="search-privacy">🔒 All processing client-side</span>
+          <span class="search-privacy">🔒 All processing is client-side</span>
         </div>
       </div>
 
-      <!-- Terms — shown on first visit only -->
+      <!-- Terms notice — shown only on first visit -->
       <div class="terms-notice hidden" id="termsNotice">
         <label class="terms-label">
           <input type="checkbox" id="termsCheckbox" class="terms-checkbox">
@@ -142,16 +131,6 @@
             I will only scan systems I own or have explicit written permission to test.
           </span>
         </label>
-      </div>
-
-      <!-- Claude API key warning — shown if no Claude key configured -->
-      <div class="claude-warning hidden" id="claudeWarning">
-        <span class="warning-icon">⚠</span>
-        <span>
-          No Claude API key detected. AI interpretation disabled — 
-          raw API data only.
-          <button class="warning-cta" id="claudeWarningBtn">Add Claude Key →</button>
-        </span>
       </div>
 
     </div>
@@ -177,13 +156,6 @@
     </div>
 
     <!-- ========== RESULTS AREA ========== -->
-    <!--
-      Ground Truth anchor structure established here.
-      Every AI claim rendered inside .mode-output will link back
-      to a specific .api-card in .api-results via data attributes.
-      Version 2: same structure, backend feeds the data instead of 
-      direct browser API calls.
-    -->
     <div class="results-container hidden" id="resultsContainer">
 
       <!-- Risk Score Header -->
@@ -191,7 +163,7 @@
         <div class="risk-gauge-wrapper">
           <svg class="risk-gauge" viewBox="0 0 200 120" 
                xmlns="http://www.w3.org/2000/svg">
-            <!-- Background track -->
+            <!-- Background arc -->
             <path
               d="M 20 100 A 80 80 0 0 1 180 100"
               fill="none"
@@ -199,7 +171,7 @@
               stroke-width="12"
               stroke-linecap="round"
             />
-            <!-- Animated progress arc — JS controls stroke-dashoffset -->
+            <!-- Animated progress arc — filled by JS -->
             <path
               id="gaugeArc"
               d="M 20 100 A 80 80 0 0 1 180 100"
@@ -212,9 +184,7 @@
             />
             <text id="gaugeScore" x="100" y="90" text-anchor="middle"
               font-family="Orbitron" font-size="32" font-weight="900" 
-              fill="#e8f4ff">
-              --
-            </text>
+              fill="#e8f4ff">--</text>
             <text x="100" y="108" text-anchor="middle"
               font-family="Rajdhani" font-size="11" fill="#7a9cc4">
               THREAT SCORE
@@ -223,55 +193,23 @@
         </div>
 
         <div class="risk-summary">
-          <div class="risk-level" id="riskLevel">Awaiting scan...</div>
+          <div class="risk-level" id="riskLevel">Scanning...</div>
           <div class="risk-target" id="riskTarget"></div>
           <div class="risk-description" id="riskDescription"></div>
           <div class="result-actions">
-            <!-- PDF export works client-side — included in MVP -->
-            <button class="btn-action" id="exportPdfBtn">
-              📄 Export PDF
-            </button>
-            <button class="btn-action" id="copyReportBtn">
-              📋 Copy Report
-            </button>
-            <button class="btn-action" id="shareReportBtn">
-              🔗 Share
-            </button>
-            <!-- Raw JSON toggle — primarily for Operator mode -->
-            <button class="btn-action" id="rawJsonBtn">
-              { } Raw JSON
-            </button>
+            <button class="btn-action" id="exportPdfBtn">📄 Export PDF</button>
+            <button class="btn-action" id="copyReportBtn">📋 Copy</button>
+            <button class="btn-action" id="shareReportBtn">🔗 Share</button>
           </div>
         </div>
       </div>
 
-      <!-- AI Interpreted Output — mode specific -->
-      <div class="mode-output" id="modeOutput">
-        <!--
-          Claude returns strict JSON schema.
-          UI renders it here based on active mode.
-          Each rendered claim has data-source attribute linking 
-          to the raw API card below — Ground Truth anchoring.
-        -->
-      </div>
+      <!-- AI Interpreted Output — rendered by modes.js -->
+      <div class="mode-output" id="modeOutput"></div>
 
-      <!-- Raw JSON viewer — hidden by default, toggled by Raw JSON button -->
-      <div class="raw-json-container hidden" id="rawJsonContainer">
-        <div class="raw-json-header">
-          <span class="section-title">RAW JSON OUTPUT</span>
-          <button class="btn-action" id="rawJsonClose">✕ Close</button>
-        </div>
-        <pre class="raw-json-content" id="rawJsonContent"></pre>
-      </div>
-
-      <!-- Source API Cards — Ground Truth layer -->
+      <!-- Raw API Result Cards — rendered by ui.js -->
       <div class="api-results" id="apiResults">
-        <h3 class="section-title">SOURCE DATA — GROUND TRUTH</h3>
-        <!--
-          Every AI claim above links back to a specific card here.
-          Clicking a claim scrolls to and expands the relevant card.
-          Built out in Modules 4 and 5 when real API data arrives.
-        -->
+        <h3 class="section-title">Raw Source Data</h3>
       </div>
 
     </div>
@@ -279,398 +217,199 @@
   </main>
 
   <!-- ========== BYOK SETTINGS PANEL ========== -->
-  <!--
-    This panel is the MVP's primary monetisation-adjacent feature.
-    Version 2: replaced by backend-managed API keys for non-technical users.
-    For now: stores keys in localStorage only, never transmitted anywhere.
-  -->
   <div class="settings-overlay hidden" id="settingsOverlay">
     <div class="settings-panel">
 
       <div class="settings-header">
-        <h2 class="settings-title">API Keys — BYOK</h2>
+        <h2 class="settings-title">⚙ API Key Setup</h2>
         <button class="settings-close" id="settingsClose">✕</button>
       </div>
 
       <p class="settings-subtitle">
-        Your keys are stored only in your browser's localStorage. 
-        They are never transmitted to any server. 
-        PhantomCheck has zero hosting costs because you bring your own keys.
+        PhantomCheck runs entirely in your browser. Your API keys are stored 
+        only in your browser's localStorage — they are never transmitted to 
+        any server. Add keys to unlock each data source.
       </p>
 
-      <!-- 
-        Key input fields populated in Module 6.
-        Structure established here so Module 6 just fills content.
-      -->
-      <div class="byok-list" id="byokList">
-        <div class="byok-coming">
-          API key input fields built in Module 6.<br>
-          Structure and storage logic already in place.
-        </div>
-      </div>
+      <!-- Claude API Key — most important, shown first -->
+      <div class="byok-section">
+        <div class="byok-section-title">AI Interpretation Engine</div>
 
-      <div class="settings-footer">
-        <button class="btn-save-keys hidden" id="saveKeysBtn">
-          Save Keys
-        </button>
-        <p class="settings-note">
-          Need API keys? Each service has a free tier. 
-          Links provided in Module 6.
-        </p>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ========== FOOTER ========== -->
-  <footer class="app-footer">
-    <div class="footer-inner">
-      <span>
-        PhantomCheck by 
-        <a href="https://github.com/futurestackintel" target="_blank">
-          FutureStack Intelligence
-        </a> 
-        · Open Source · MIT License
-      </span>
-      <span class="footer-links">
-        <a href="pages/terms.html">Terms</a> ·
-        <a href="pages/privacy.html">Privacy</a> ·
-        <a href="#" id="reportAbuseBtn">Report Abuse</a>
-      </span>
-    </div>
-  </footer>
-
-  <!-- Scripts load in dependency order -->
-  <!-- Version 2: scanner.js gets a backend adapter injected here -->
-  <script src="assets/js/cache.js"></script>
-  <script src="assets/js/ui.js"></script>
-  <script src="assets/js/modes.js"></script>
-  <script src="assets/js/apis.js"></script>
-  <script src="assets/js/ai.js"></script>
-  <script src="assets/js/scanner.js"></script>
-  <script src="assets/js/app.js"></script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PhantomCheck — OSINT Reconnaissance</title>
-  <meta name="description" content="Free AI-powered OSINT tool. BYOK. Adaptive output modes for security professionals, analysts and non-technical users.">
-  <link rel="stylesheet" href="assets/css/global.css">
-  <link rel="stylesheet" href="assets/css/app.css">
-</head>
-
-<body>
-
-  <!-- ========== NAVIGATION ========== -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <a href="/app" class="nav-logo">
-        Phantom<span>Check</span>
-      </a>
-      <div class="nav-links">
-        <!-- Settings opens BYOK panel — primary CTA for MVP -->
-        <button class="nav-link" id="settingsBtn">⚙ API Keys</button>
-        <a href="https://github.com/futurestackintel/phantomcheck" 
-           target="_blank" class="nav-link">GitHub</a>
-        <a href="/waitlist.html" class="nav-link">Waitlist</a>
-      </div>
-    </div>
-  </nav>
-
-  <!-- ========== HERO ========== -->
-  <section class="hero">
-    <div class="hero-inner">
-      <div class="hero-badge">OPEN SOURCE · FREE · BYOK</div>
-      <h1 class="hero-title">
-        Reconnaissance that speaks<br>
-        <span class="hero-title-accent">your language.</span>
-      </h1>
-      <p class="hero-subtitle">
-        Scan any domain, email or IP against multiple security databases simultaneously.
-        Claude AI interprets everything in three completely different modes —
-        plain English, professional report, or raw technical data.
-        Bring your own API keys. Zero hosting cost to you or us.
-      </p>
-    </div>
-  </section>
-
-  <!-- ========== BYOK STATUS BAR ========== -->
-  <!-- 
-    This bar shows users at a glance which APIs are active.
-    In Version 2 this becomes a "Connected APIs" bar fed by backend.
-    For now it reads from localStorage BYOK keys.
-  -->
-  <div class="byok-bar" id="byokBar">
-    <div class="byok-bar-inner">
-      <span class="byok-bar-label">ACTIVE APIS:</span>
-      <div class="byok-pills" id="byokPills">
-        <!-- Populated by app.js on load -->
-        <span class="byok-pill inactive">No API keys configured</span>
-      </div>
-      <button class="byok-bar-cta" id="byokBarBtn">+ Add API Keys</button>
-    </div>
-  </div>
-
-  <!-- ========== MAIN TOOL ========== -->
-  <main class="tool-container">
-
-    <!-- Search Card -->
-    <div class="search-card">
-
-      <!-- Mode Selector -->
-      <div class="mode-selector">
-        <div class="mode-label">Output Mode</div>
-        <div class="mode-tabs">
-
-          <button class="mode-tab" data-mode="explorer">
-            <span class="mode-icon">👁</span>
-            <span class="mode-name">Explorer</span>
-            <span class="mode-desc">Plain English</span>
-            <!-- 
-              Version 2 note: Explorer mode will be the primary mode 
-              for non-technical users once backend handles API keys seamlessly.
-              For MVP it works but requires user to have Claude API key.
-            -->
-          </button>
-
-          <button class="mode-tab" data-mode="analyst">
-            <span class="mode-icon">📊</span>
-            <span class="mode-name">Analyst</span>
-            <span class="mode-desc">Pro Report</span>
-          </button>
-
-          <button class="mode-tab active" data-mode="operator">
-            <span class="mode-icon">⚡</span>
-            <span class="mode-name">Operator</span>
-            <span class="mode-desc">Raw Data</span>
-            <!-- Operator is default for MVP — primary audience is security pros -->
-          </button>
-
-        </div>
-
-        <!-- Auto-suggestion strip — shown after input type detected -->
-        <div class="mode-suggestion hidden" id="modeSuggestion">
-          <span class="suggestion-icon">💡</span>
-          <span class="suggestion-text" id="suggestionText"></span>
-          <button class="suggestion-apply" id="suggestionApply">Switch</button>
-        </div>
-      </div>
-
-      <!-- Search Input -->
-      <div class="search-area">
-        <div class="search-input-wrapper">
-          <div class="search-type-badge" id="inputTypeBadge">TARGET</div>
+        <div class="byok-field" id="byok-claude">
+          <div class="byok-field-header">
+            <div class="byok-field-left">
+              <div class="byok-indicator" id="indicator-claude"></div>
+              <div>
+                <div class="byok-name">Claude API (Anthropic)</div>
+                <div class="byok-description">
+                  Powers all three output modes — Explorer, Analyst, Operator
+                </div>
+              </div>
+            </div>
+            <a href="https://console.anthropic.com" target="_blank" 
+               class="byok-get-key">Get free key →</a>
+          </div>
           <input
-            type="text"
-            id="searchInput"
-            class="search-input"
-            placeholder="domain.com · email@example.com · 192.168.1.1"
+            type="password"
+            class="byok-input"
+            id="key-claude"
+            placeholder="sk-ant-..."
             autocomplete="off"
-            spellcheck="false"
           >
-          <button class="btn-scan" id="scanBtn">
-            <span class="scan-btn-text">SCAN</span>
-            <span class="scan-btn-icon">→</span>
-          </button>
-        </div>
-
-        <div class="search-meta">
-          <span class="searches-remaining" id="searchesRemaining">
-            5 scans remaining today
-          </span>
-          <span class="search-privacy">🔒 All processing client-side</span>
         </div>
       </div>
 
-      <!-- Terms — shown on first visit only -->
-      <div class="terms-notice hidden" id="termsNotice">
-        <label class="terms-label">
-          <input type="checkbox" id="termsCheckbox" class="terms-checkbox">
-          <span>
-            I agree to the 
-            <a href="pages/terms.html" target="_blank">Terms of Service</a>. 
-            I will only scan systems I own or have explicit written permission to test.
-          </span>
-        </label>
-      </div>
-
-      <!-- Claude API key warning — shown if no Claude key configured -->
-      <div class="claude-warning hidden" id="claudeWarning">
-        <span class="warning-icon">⚠</span>
-        <span>
-          No Claude API key detected. AI interpretation disabled — 
-          raw API data only.
-          <button class="warning-cta" id="claudeWarningBtn">Add Claude Key →</button>
-        </span>
-      </div>
-
-    </div>
-
-    <!-- ========== LOADING TERMINAL ========== -->
-    <div class="terminal-container hidden" id="terminalContainer">
-      <div class="terminal-header">
-        <div class="terminal-dots">
-          <span class="dot dot-red"></span>
-          <span class="dot dot-yellow"></span>
-          <span class="dot dot-green"></span>
-        </div>
-        <div class="terminal-title">phantomcheck — reconnaissance active</div>
-      </div>
-      <div class="terminal-body" id="terminalBody">
-        <div class="terminal-line">
-          <span class="terminal-prompt">phantom@check:~$</span>
-          <span class="terminal-cmd" id="terminalCmd"></span>
-          <span class="terminal-cursor">▋</span>
-        </div>
-        <div class="terminal-log" id="terminalLog"></div>
-      </div>
-    </div>
-
-    <!-- ========== RESULTS AREA ========== -->
-    <!--
-      Ground Truth anchor structure established here.
-      Every AI claim rendered inside .mode-output will link back
-      to a specific .api-card in .api-results via data attributes.
-      Version 2: same structure, backend feeds the data instead of 
-      direct browser API calls.
-    -->
-    <div class="results-container hidden" id="resultsContainer">
-
-      <!-- Risk Score Header -->
-      <div class="risk-header">
-        <div class="risk-gauge-wrapper">
-          <svg class="risk-gauge" viewBox="0 0 200 120" 
-               xmlns="http://www.w3.org/2000/svg">
-            <!-- Background track -->
-            <path
-              d="M 20 100 A 80 80 0 0 1 180 100"
-              fill="none"
-              stroke="#1a2444"
-              stroke-width="12"
-              stroke-linecap="round"
-            />
-            <!-- Animated progress arc — JS controls stroke-dashoffset -->
-            <path
-              id="gaugeArc"
-              d="M 20 100 A 80 80 0 0 1 180 100"
-              fill="none"
-              stroke="#00eaff"
-              stroke-width="12"
-              stroke-linecap="round"
-              stroke-dasharray="251"
-              stroke-dashoffset="251"
-            />
-            <text id="gaugeScore" x="100" y="90" text-anchor="middle"
-              font-family="Orbitron" font-size="32" font-weight="900" 
-              fill="#e8f4ff">
-              --
-            </text>
-            <text x="100" y="108" text-anchor="middle"
-              font-family="Rajdhani" font-size="11" fill="#7a9cc4">
-              THREAT SCORE
-            </text>
-          </svg>
-        </div>
-
-        <div class="risk-summary">
-          <div class="risk-level" id="riskLevel">Awaiting scan...</div>
-          <div class="risk-target" id="riskTarget"></div>
-          <div class="risk-description" id="riskDescription"></div>
-          <div class="result-actions">
-            <!-- PDF export works client-side — included in MVP -->
-            <button class="btn-action" id="exportPdfBtn">
-              📄 Export PDF
-            </button>
-            <button class="btn-action" id="copyReportBtn">
-              📋 Copy Report
-            </button>
-            <button class="btn-action" id="shareReportBtn">
-              🔗 Share
-            </button>
-            <!-- Raw JSON toggle — primarily for Operator mode -->
-            <button class="btn-action" id="rawJsonBtn">
-              { } Raw JSON
-            </button>
+      <!-- Free APIs — no key needed -->
+      <div class="byok-section">
+        <div class="byok-section-title">Free APIs — No Key Required</div>
+        <div class="byok-free-list">
+          <div class="byok-free-item">
+            <div class="byok-indicator active"></div>
+            <div>
+              <div class="byok-name">crt.sh</div>
+              <div class="byok-description">SSL certificate transparency · subdomain enumeration</div>
+            </div>
+          </div>
+          <div class="byok-free-item">
+            <div class="byok-indicator active"></div>
+            <div>
+              <div class="byok-name">urlscan.io</div>
+              <div class="byok-description">Website scanning · visual screenshots</div>
+            </div>
+          </div>
+          <div class="byok-free-item">
+            <div class="byok-indicator active"></div>
+            <div>
+              <div class="byok-name">AbuseIPDB</div>
+              <div class="byok-description">IP reputation · abuse reports</div>
+            </div>
+          </div>
+          <div class="byok-free-item">
+            <div class="byok-indicator active"></div>
+            <div>
+              <div class="byok-name">DNS Lookup</div>
+              <div class="byok-description">Full DNS record enumeration · A, MX, TXT, NS</div>
+            </div>
+          </div>
+          <div class="byok-free-item">
+            <div class="byok-indicator active"></div>
+            <div>
+              <div class="byok-name">Africa Regional Check</div>
+              <div class="byok-description">
+                .ng · .za domain exposure · African hosting vulnerabilities
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- AI Interpreted Output — mode specific -->
-      <div class="mode-output" id="modeOutput">
-        <!--
-          Claude returns strict JSON schema.
-          UI renders it here based on active mode.
-          Each rendered claim has data-source attribute linking 
-          to the raw API card below — Ground Truth anchoring.
-        -->
-      </div>
+      <!-- Premium BYOK APIs -->
+      <div class="byok-section">
+        <div class="byok-section-title">Premium APIs — Your Key Required</div>
 
-      <!-- Raw JSON viewer — hidden by default, toggled by Raw JSON button -->
-      <div class="raw-json-container hidden" id="rawJsonContainer">
-        <div class="raw-json-header">
-          <span class="section-title">RAW JSON OUTPUT</span>
-          <button class="btn-action" id="rawJsonClose">✕ Close</button>
+        <div class="byok-field" id="byok-virustotal">
+          <div class="byok-field-header">
+            <div class="byok-field-left">
+              <div class="byok-indicator" id="indicator-virustotal"></div>
+              <div>
+                <div class="byok-name">VirusTotal</div>
+                <div class="byok-description">
+                  90+ security vendor reputation checks
+                </div>
+              </div>
+            </div>
+            <a href="https://www.virustotal.com/gui/join-us" target="_blank" 
+               class="byok-get-key">Get free key →</a>
+          </div>
+          <input
+            type="password"
+            class="byok-input"
+            id="key-virustotal"
+            placeholder="API key..."
+            autocomplete="off"
+          >
         </div>
-        <pre class="raw-json-content" id="rawJsonContent"></pre>
+
+        <div class="byok-field" id="byok-shodan">
+          <div class="byok-field-header">
+            <div class="byok-field-left">
+              <div class="byok-indicator" id="indicator-shodan"></div>
+              <div>
+                <div class="byok-name">Shodan</div>
+                <div class="byok-description">
+                  Exposed ports · services · device fingerprinting
+                </div>
+              </div>
+            </div>
+            <a href="https://account.shodan.io/register" target="_blank" 
+               class="byok-get-key">Get free key →</a>
+          </div>
+          <input
+            type="password"
+            class="byok-input"
+            id="key-shodan"
+            placeholder="API key..."
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="byok-field" id="byok-hibp">
+          <div class="byok-field-header">
+            <div class="byok-field-left">
+              <div class="byok-indicator" id="indicator-hibp"></div>
+              <div>
+                <div class="byok-name">HaveIBeenPwned</div>
+                <div class="byok-description">
+                  Email breach detection across hundreds of known breaches
+                </div>
+              </div>
+            </div>
+            <a href="https://haveibeenpwned.com/API/Key" target="_blank" 
+               class="byok-get-key">Get key →</a>
+          </div>
+          <input
+            type="password"
+            class="byok-input"
+            id="key-hibp"
+            placeholder="API key..."
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="byok-field" id="byok-securitytrails">
+          <div class="byok-field-header">
+            <div class="byok-field-left">
+              <div class="byok-indicator" id="indicator-securitytrails"></div>
+              <div>
+                <div class="byok-name">SecurityTrails</div>
+                <div class="byok-description">
+                  DNS history · infrastructure mapping
+                </div>
+              </div>
+            </div>
+            <a href="https://securitytrails.com/app/signup" target="_blank" 
+               class="byok-get-key">Get free key →</a>
+          </div>
+          <input
+            type="password"
+            class="byok-input"
+            id="key-securitytrails"
+            placeholder="API key..."
+            autocomplete="off"
+          >
+        </div>
+
       </div>
 
-      <!-- Source API Cards — Ground Truth layer -->
-      <div class="api-results" id="apiResults">
-        <h3 class="section-title">SOURCE DATA — GROUND TRUTH</h3>
-        <!--
-          Every AI claim above links back to a specific card here.
-          Clicking a claim scrolls to and expands the relevant card.
-          Built out in Modules 4 and 5 when real API data arrives.
-        -->
-      </div>
+      <!-- Save button -->
+      <button class="btn-save-keys" id="saveKeysBtn">
+        SAVE KEYS TO BROWSER
+      </button>
 
-    </div>
-
-  </main>
-
-  <!-- ========== BYOK SETTINGS PANEL ========== -->
-  <!--
-    This panel is the MVP's primary monetisation-adjacent feature.
-    Version 2: replaced by backend-managed API keys for non-technical users.
-    For now: stores keys in localStorage only, never transmitted anywhere.
-  -->
-  <div class="settings-overlay hidden" id="settingsOverlay">
-    <div class="settings-panel">
-
-      <div class="settings-header">
-        <h2 class="settings-title">API Keys — BYOK</h2>
-        <button class="settings-close" id="settingsClose">✕</button>
-      </div>
-
-      <p class="settings-subtitle">
-        Your keys are stored only in your browser's localStorage. 
-        They are never transmitted to any server. 
-        PhantomCheck has zero hosting costs because you bring your own keys.
+      <p class="byok-footer-note">
+        Keys saved to localStorage only. Clear your browser data to remove them. 
+        Never shared with anyone including FutureStack Intelligence.
       </p>
-
-      <!-- 
-        Key input fields populated in Module 6.
-        Structure established here so Module 6 just fills content.
-      -->
-      <div class="byok-list" id="byokList">
-        <div class="byok-coming">
-          API key input fields built in Module 6.<br>
-          Structure and storage logic already in place.
-        </div>
-      </div>
-
-      <div class="settings-footer">
-        <button class="btn-save-keys hidden" id="saveKeysBtn">
-          Save Keys
-        </button>
-        <p class="settings-note">
-          Need API keys? Each service has a free tier. 
-          Links provided in Module 6.
-        </p>
-      </div>
 
     </div>
   </div>
@@ -683,7 +422,7 @@
         <a href="https://github.com/futurestackintel" target="_blank">
           FutureStack Intelligence
         </a> 
-        · Open Source · MIT License
+        · Ilorin, Nigeria · MIT License
       </span>
       <span class="footer-links">
         <a href="pages/terms.html">Terms</a> ·
@@ -694,8 +433,6 @@
   </footer>
 
   <!-- Scripts load in dependency order -->
-  <!-- Version 2: scanner.js gets a backend adapter injected here -->
-  <script src="assets/js/input.js"></script>
   <script src="assets/js/cache.js"></script>
   <script src="assets/js/ui.js"></script>
   <script src="assets/js/modes.js"></script>
@@ -705,4 +442,4 @@
   <script src="assets/js/app.js"></script>
 
 </body>
-  </html>
+</html>
