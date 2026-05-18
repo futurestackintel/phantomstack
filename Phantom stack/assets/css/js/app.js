@@ -1,111 +1,158 @@
-// ============================================
-// PHANTOMCHECK — MAIN APP (Revised MVP)
-// Pure BYOK, no subscriptions, no paywalls
-// ============================================
-
-// All API keys we support — used to build the status bar
-// and the settings panel indicators
 const API_KEYS = {
-  claude:         { label: 'Claude AI',       storageKey: 'pc_key_claude'         },
-  virustotal:     { label: 'VirusTotal',      storageKey: 'pc_key_virustotal'     },
-  shodan:         { label: 'Shodan',          storageKey: 'pc_key_shodan'         },
-  hibp:           { label: 'HIBP',            storageKey: 'pc_key_hibp'           },
-  securitytrails: { label: 'SecurityTrails',  storageKey: 'pc_key_securitytrails' },
+  claude:         { label: 'Claude AI',      storageKey: 'pc_key_claude'         },
+  virustotal:     { label: 'VirusTotal',     storageKey: 'pc_key_virustotal'     },
+  shodan:         { label: 'Shodan',         storageKey: 'pc_key_shodan'         },
+  hibp:           { label: 'HIBP',           storageKey: 'pc_key_hibp'           },
+  securitytrails: { label: 'SecurityTrails', storageKey: 'pc_key_securitytrails' },
 };
 
-// Mode descriptions — shown below the mode tabs when each is selected
 const MODE_DESCRIPTIONS = {
   explorer: 'Explorer mode explains findings in plain English with zero jargon. Ideal for business owners, individuals and non-technical users.',
   analyst:  'Analyst mode produces a structured professional security report. Business risk focused with industry terminology briefly explained.',
   operator: 'Operator mode outputs raw technical intelligence. CVE references, full JSON available, terminal aesthetic. No hand-holding.',
 };
 
-// ============================================
-// INITIALISE ON DOM READY
-// ============================================
-document.addEventListener('DOMContentLoaded', function () {
+let currentMode = 'explorer';
 
-  // Render the API status bar in the hero section
+document.addEventListener('DOMContentLoaded', function() {
   renderApiStatusBar();
-
-  // Load any saved keys into the settings panel inputs
   loadSavedKeys();
+  updateScansRemaining();
 
-  // Show terms notice if user hasn't accepted yet
-  const termsAccepted = localStorage.getItem('pc_terms');
-  if (!termsAccepted) {
+  if (!localStorage.getItem('pc_terms')) {
     document.getElementById('termsNotice').classList.remove('hidden');
   }
 
-  // ---- Mode switching ----
-  let currentMode = 'explorer';
-  const modeTabs = document.querySelectorAll('.mode-tab');
-
-  modeTabs.forEach(function (tab) {
-    tab.addEventListener('click', function () {
-      // Deactivate all tabs
-      modeTabs.forEach(function (t) { t.classList.remove('active'); });
-      // Activate clicked tab
+  document.querySelectorAll('.mode-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.mode-tab').forEach(function(t) {
+        t.classList.remove('active');
+      });
       tab.classList.add('active');
-      // Update current mode
       currentMode = tab.dataset.mode;
-      // Update the description text below the tabs
       document.getElementById('modeContextText').textContent =
         MODE_DESCRIPTIONS[currentMode];
     });
   });
 
-  // ---- Settings panel — open ----
-  // Both the nav button and the hero status bar button open settings
-  document.getElementById('settingsBtn').addEventListener('click', function (e) {
+  document.getElementById('settingsBtn').addEventListener('click', function(e) {
     e.preventDefault();
     openSettings();
   });
 
-  document.getElementById('apiStatusSetupBtn').addEventListener('click', function () {
-    openSettings();
-  });
-
-  // ---- Settings panel — close ----
+  document.getElementById('apiStatusSetupBtn').addEventListener('click', openSettings);
   document.getElementById('settingsClose').addEventListener('click', closeSettings);
 
-  // Close when clicking the dark overlay behind the panel
-  document.getElementById('settingsOverlay').addEventListener('click', function (e) {
-    // e.target is the element that was actually clicked
-    // We only close if they clicked the overlay itself, not the panel inside it
-    if (e.target === document.getElementById('settingsOverlay')) {
-      closeSettings();
-    }
+  document.getElementById('settingsOverlay').addEventListener('click', function(e) {
+    if (e.target === document.getElementById('settingsOverlay')) closeSettings();
   });
 
-  // ---- Save API keys ----
-  document.getElementById('saveKeysBtn').addEventListener('click', function () {
-    saveKeys();
+  document.getElementById('saveKeysBtn').addEventListener('click', saveKeys);
+
+  document.getElementById('searchInput').addEventListener('input', function() {
+    handleInputChange(this.value);
   });
 
-  // ---- Scan button ----
-  document.getElementById('scanBtn').addEventListener('click', function () {
-    initiateScan(currentMode);
+  document.getElementById('scanBtn').addEventListener('click', function() {
+    initiateScan();
   });
 
-  // Allow Enter key to trigger scan
-  document.getElementById('searchInput').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') { initiateScan(currentMode); }
+  document.getElementById('searchInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') initiateScan();
   });
 
-  // ---- Collapsible API result cards ----
-  // Event delegation — one listener handles all cards including ones added later
-  document.addEventListener('click', function (e) {
+  document.addEventListener('click', function(e) {
     const header = e.target.closest('.api-card-header');
     if (!header) return;
     header.closest('.api-card').classList.toggle('expanded');
   });
-
 });
 
-// ============================================
-// SETTINGS PANEL
-// ============================================
+function handleInputChange(val) {
+  const type = detectInputType(val);
+  const badge = document.getElementById('inputTypeBadge');
+  const hint  = document.getElementById('inputHint');
+
+  badge.textContent = BADGE_LABELS[type];
+
+  if (type !== INPUT_TYPES.UNKNOWN && val.trim()) {
+    const suggested = MODE_SUGGESTIONS[type];
+    suggestMode(suggested);
+    hint.textContent = 'Detected: ' + type.toLowerCase() +
+      ' — ' + suggested + ' mode suggested';
+  } else {
+    hint.textContent = 'Supports: domains · email addresses · IP addresses';
+  }
+}
+
+function suggestMode(mode) {
+  document.querySelectorAll('.mode-tab').forEach(function(tab) {
+    tab.classList.remove('active');
+    if (tab.dataset.mode === mode) tab.classList.add('active');
+  });
+  currentMode = mode;
+  document.getElementById('modeContextText').textContent =
+    MODE_DESCRIPTIONS[mode];
+}
+
+function initiateScan() {
+  const input = document.getElementById('searchInput');
+  const val   = input.value.trim();
+
+  const terms = localStorage.getItem('pc_terms');
+  const checkbox = document.getElementById('termsCheckbox');
+  const termsNotice = document.getElementById('termsNotice');
+
+  if (!terms) {
+    if (!checkbox || !checkbox.checked) {
+      flashBorder(termsNotice, 'var(--critical)');
+      return;
+    }
+    localStorage.setItem('pc_terms', 'true');
+    termsNotice.classList.add('hidden');
+  }
+
+  const validation = validateInput(val);
+  if (!validation.ok) {
+    flashBorder(input, 'var(--critical)');
+    document.getElementById('inputHint').textContent = validation.msg;
+    document.getElementById('inputHint').style.color = 'var(--critical)';
+    setTimeout(function() {
+      document.getElementById('inputHint').style.color = '';
+      document.getElementById('inputHint').textContent =
+        'Supports: domains · email addresses · IP addresses';
+    }, 3000);
+    return;
+  }
+
+  if (!checkRateLimit()) {
+    document.getElementById('inputHint').textContent =
+      'Daily limit reached (5 scans). Resets at midnight.';
+    document.getElementById('inputHint').style.color = 'var(--warning)';
+    return;
+  }
+
+  const claudeKey = localStorage.getItem('pc_key_claude');
+  if (!claudeKey) {
+    openSettings();
+    const field = document.getElementById('byok-claude');
+    if (field) flashBorder(field, 'var(--warning)');
+    return;
+  }
+
+  incrementRateLimit();
+  updateScansRemaining();
+
+  // Hands off to scanner — built in Module 4
+  console.log('Scan ready:', { target: val, type: validation.type, mode: currentMode });
+  alert('Input intelligence working. \nTarget: ' + val +
+    '\nType: ' + validation.type + '\nMode: ' + currentMode.toUpperCase());
+}
+
+function updateScansRemaining() {
+  const el = document.getElementById('searchesRemaining');
+  if (el) el.textContent = scansRemaining() + ' scans remaining today';
+}
 
 function openSettings() {
   document.getElementById('settingsOverlay').classList.remove('hidden');
@@ -115,183 +162,79 @@ function closeSettings() {
   document.getElementById('settingsOverlay').classList.add('hidden');
 }
 
-// ============================================
-// API KEY MANAGEMENT
-// ============================================
-
-// Read all key inputs from the settings panel and save to localStorage
 function saveKeys() {
-  let savedCount = 0;
-
-  Object.entries(API_KEYS).forEach(function ([apiId, config]) {
-    const input = document.getElementById('key-' + apiId);
+  let saved = 0;
+  Object.entries(API_KEYS).forEach(function([id, cfg]) {
+    const input = document.getElementById('key-' + id);
     if (!input) return;
-
-    const value = input.value.trim();
-
-    if (value) {
-      // Save the key — storageKey is our localStorage key name
-      localStorage.setItem(config.storageKey, value);
-      savedCount++;
-
-      // Update the green dot indicator for this API
-      const indicator = document.getElementById('indicator-' + apiId);
-      if (indicator) { indicator.classList.add('active'); }
-
-      // Add green border to the field container
-      const field = document.getElementById('byok-' + apiId);
-      if (field) { field.classList.add('has-key'); }
-
+    const val = input.value.trim();
+    if (val) {
+      localStorage.setItem(cfg.storageKey, val);
+      saved++;
+      const ind = document.getElementById('indicator-' + id);
+      if (ind) ind.classList.add('active');
+      const field = document.getElementById('byok-' + id);
+      if (field) field.classList.add('has-key');
     } else {
-      // If input is blank, remove any previously saved key
-      localStorage.removeItem(config.storageKey);
-
-      const indicator = document.getElementById('indicator-' + apiId);
-      if (indicator) { indicator.classList.remove('active'); }
-
-      const field = document.getElementById('byok-' + apiId);
-      if (field) { field.classList.remove('has-key'); }
+      localStorage.removeItem(cfg.storageKey);
+      const ind = document.getElementById('indicator-' + id);
+      if (ind) ind.classList.remove('active');
+      const field = document.getElementById('byok-' + id);
+      if (field) field.classList.remove('has-key');
     }
   });
 
-  // Re-render the status bar in the hero to reflect new key state
   renderApiStatusBar();
 
-  // Visual feedback on the save button
   const btn = document.getElementById('saveKeysBtn');
-  const original = btn.textContent;
-  btn.textContent = savedCount > 0
-    ? '✓ ' + savedCount + ' KEY(S) SAVED'
-    : '✓ KEYS CLEARED';
-  setTimeout(function () { btn.textContent = original; }, 2000);
-
-  // Close settings after saving
+  const orig = btn.textContent;
+  btn.textContent = saved > 0 ? '✓ ' + saved + ' KEY(S) SAVED' : '✓ KEYS CLEARED';
+  setTimeout(function() { btn.textContent = orig; }, 2000);
   setTimeout(closeSettings, 800);
 }
 
-// On page load, populate the input fields with any previously saved keys
 function loadSavedKeys() {
-  Object.entries(API_KEYS).forEach(function ([apiId, config]) {
-    const saved = localStorage.getItem(config.storageKey);
-    const input = document.getElementById('key-' + apiId);
+  Object.entries(API_KEYS).forEach(function([id, cfg]) {
+    const saved = localStorage.getItem(cfg.storageKey);
+    const input = document.getElementById('key-' + id);
     if (!input) return;
-
     if (saved) {
-      // Show masked version so user knows a key exists
-      // We don't show the actual key for security
       input.value = saved;
-
-      const indicator = document.getElementById('indicator-' + apiId);
-      if (indicator) { indicator.classList.add('active'); }
-
-      const field = document.getElementById('byok-' + apiId);
-      if (field) { field.classList.add('has-key'); }
+      const ind = document.getElementById('indicator-' + id);
+      if (ind) ind.classList.add('active');
+      const field = document.getElementById('byok-' + id);
+      if (field) field.classList.add('has-key');
     }
   });
 }
-
-// ============================================
-// API STATUS BAR (hero section)
-// Shows which APIs are active at a glance
-// ============================================
 
 function renderApiStatusBar() {
   const container = document.getElementById('apiStatusPills');
   if (!container) return;
-
-  // Clear existing pills
   container.innerHTML = '';
 
-  // Always-active free APIs — no key needed
-  const freeApis = [
-    'crt.sh', 'urlscan.io', 'AbuseIPDB', 'DNS', 'Africa Check'
-  ];
-
-  freeApis.forEach(function (name) {
+  ['crt.sh', 'urlscan.io', 'AbuseIPDB', 'DNS', 'Africa Check'].forEach(function(name) {
     container.appendChild(makePill(name, true));
   });
 
-  // BYOK APIs — active only if user has saved a key
-  Object.entries(API_KEYS).forEach(function ([apiId, config]) {
-    const hasKey = !!localStorage.getItem(config.storageKey);
-    container.appendChild(makePill(config.label, hasKey));
+  Object.entries(API_KEYS).forEach(function([id, cfg]) {
+    container.appendChild(makePill(cfg.label, !!localStorage.getItem(cfg.storageKey)));
   });
 }
 
-// Creates one status pill element
-function makePill(label, isReady) {
+function makePill(label, ready) {
   const pill = document.createElement('div');
-  pill.className = 'status-pill ' + (isReady ? 'ready' : 'missing');
-
+  pill.className = 'status-pill ' + (ready ? 'ready' : 'missing');
   const dot = document.createElement('span');
   dot.className = 'status-pill-dot';
-
   const text = document.createElement('span');
   text.textContent = label;
-
   pill.appendChild(dot);
   pill.appendChild(text);
   return pill;
 }
 
-// ============================================
-// SCAN INITIATION
-// Full scan engine built in Modules 4-8
-// This validates input and checks prerequisites
-// ============================================
-
-function initiateScan(currentMode) {
-  const input   = document.getElementById('searchInput');
-  const query   = input.value.trim();
-
-  // Validate — must have something to scan
-  if (!query) {
-    flashBorder(input, 'var(--critical)');
-    input.focus();
-    return;
-  }
-
-  // Check terms accepted
-  const termsAccepted  = localStorage.getItem('pc_terms');
-  const termsCheckbox  = document.getElementById('termsCheckbox');
-  const termsNotice    = document.getElementById('termsNotice');
-
-  if (!termsAccepted) {
-    if (!termsCheckbox || !termsCheckbox.checked) {
-      flashBorder(termsNotice, 'var(--critical)');
-      return;
-    }
-    // Save acceptance permanently
-    localStorage.setItem('pc_terms', 'true');
-    termsNotice.classList.add('hidden');
-  }
-
-  // Check Claude key exists — needed for AI interpretation
-  const claudeKey = localStorage.getItem('pc_key_claude');
-  if (!claudeKey) {
-    // Prompt user to add their Claude key
-    openSettings();
-    // Flash the Claude field to draw attention
-    const claudeField = document.getElementById('byok-claude');
-    if (claudeField) { flashBorder(claudeField, 'var(--warning)'); }
-    return;
-  }
-
-  // All checks passed — scan engine connects here in Module 3
-  console.log('Scan initiated:', { query, mode: currentMode });
-  alert(
-    'Interface confirmed working ✓\n\n' +
-    'Target: ' + query + '\n' +
-    'Mode: ' + currentMode.toUpperCase() + '\n\n' +
-    'Scan engine connects in Module 3.'
-  );
+function flashBorder(el, color) {
+  el.style.borderColor = color;
+  setTimeout(function() { el.style.borderColor = ''; }, 1500);
 }
-
-// Temporarily flashes a red/warning border on any element
-function flashBorder(element, color) {
-  const original = element.style.borderColor;
-  element.style.borderColor = color;
-  setTimeout(function () {
-    element.style.borderColor = original;
-  }, 1500);
-                                          }
