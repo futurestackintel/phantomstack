@@ -144,9 +144,7 @@ function initiateScan() {
   updateScansRemaining();
 
   // Hands off to scanner — built in Module 4
-  console.log('Scan ready:', { target: val, type: validation.type, mode: currentMode });
-  alert('Input intelligence working. \nTarget: ' + val +
-    '\nType: ' + validation.type + '\nMode: ' + currentMode.toUpperCase());
+  runScan(val, validation.type, currentMode);
 }
 
 function updateScansRemaining() {
