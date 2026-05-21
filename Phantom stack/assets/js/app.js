@@ -21,7 +21,23 @@ document.addEventListener('DOMContentLoaded', function() {
   loadSavedKeys();
   updateScansRemaining();
   loadSavedMode();
-
+  
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get('t');
+    const m = params.get('m');
+    if (!t) return;
+    const input = document.getElementById('searchInput');
+    if (input) input.value = t;
+    if (m && ['explorer', 'analyst', 'operator'].includes(m)) {
+      suggestMode(m);
+    }
+    handleInputChange(t);
+    if (localStorage.getItem('pc_terms')) {
+      setTimeout(function() { runScan(t, detectInputType(t), currentMode); }, 400);
+    }
+  })();
+  
   if (!localStorage.getItem('pc_terms')) {
     document.getElementById('termsNotice').classList.remove('hidden');
   }
@@ -60,7 +76,11 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('scanBtn').addEventListener('click', function() {
     initiateScan();
   });
-
+  
+  document.getElementById('exportPdfBtn').addEventListener('click', exportPdf);
+  document.getElementById('copyReportBtn').addEventListener('click', copyReport);
+  document.getElementById('shareReportBtn').addEventListener('click', shareReport);
+  
   document.getElementById('searchInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') initiateScan();
   });
