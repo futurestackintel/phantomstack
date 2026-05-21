@@ -110,3 +110,141 @@ function scanBtnState(scanning) {
   btn.disabled = scanning;
   btn.querySelector('.scan-btn-text').textContent = scanning ? 'SCANNING' : 'SCAN';
 }
+function renderAIOutput(parsed, mode) {
+  const upsell = parsed.upsell && parsed.upsell !== 'none' ? UPSELL_DATA[parsed.upsell] : null;
+
+  const severityColor = s =>
+    s === 'critical' ? 'var(--critical)' :
+    s === 'warning'  ? 'var(--warning)'  :
+    'var(--safe)';
+
+  const severityDot = s =>
+    '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' +
+    severityColor(s) + ';margin-right:6px"></span>';
+
+  let html = '<div class="ai-output">';
+
+  if (mode === 'explorer') {
+    html +=
+      '<div class="ai-verdict">' + parsed.verdict + '</div>' +
+      '<div class="ai-findings">';
+
+    (parsed.findings || []).forEach(function(f) {
+      html +=
+        '<div class="ai-finding-card">' +
+          '<div class="ai-finding-header">' +
+            severityDot(f.severity) +
+            '<strong>' + f.title + '</strong>' +
+            '<a class="ai-source-link" href="#src-' + encodeURIComponent(f.source) + '">' +
+              'Source: ' + f.source +
+            '</a>' +
+          '</div>' +
+          '<p class="ai-finding-body">' + f.explanation + '</p>' +
+        '</div>';
+    });
+
+    html += '</div>';
+
+    if (parsed.action_items && parsed.action_items.length) {
+      html += '<div class="ai-actions"><h4>What should I do?</h4><ul>';
+      parsed.action_items.forEach(function(a) {
+        html += '<li>' + a + '</li>';
+      });
+      html += '</ul></div>';
+    }
+  }
+
+  if (mode === 'analyst') {
+    html +=
+      '<div class="ai-verdict">' + parsed.executive_summary + '</div>' +
+      '<p class="ai-rationale">' + parsed.risk_score_rationale + '</p>' +
+      '<div class="ai-findings">';
+
+    (parsed.findings || []).forEach(function(f) {
+      html +=
+        '<div class="ai-finding-card">' +
+          '<div class="ai-finding-header">' +
+            severityDot(f.severity) +
+            '<strong>' + f.title + '</strong>' +
+            '<a class="ai-source-link" href="#src-' + encodeURIComponent(f.source) + '">' +
+              'Source: ' + f.source +
+            '</a>' +
+          '</div>' +
+          '<p class="ai-finding-body">' + f.detail + '</p>' +
+          '<div class="ai-recommendation">Recommendation: ' + f.recommendation + '</div>' +
+        '</div>';
+    });
+
+    html += '</div>';
+
+    if (parsed.threat_surface && parsed.threat_surface.length) {
+      html += '<div class="ai-tags"><strong>Threat Surface:</strong>';
+      parsed.threat_surface.forEach(function(t) {
+        html += '<span class="ai-tag">' + t + '</span>';
+      });
+      html += '</div>';
+    }
+
+    if (parsed.compliance_flags && parsed.compliance_flags.length) {
+      html += '<div class="ai-tags"><strong>Compliance Flags:</strong>';
+      parsed.compliance_flags.forEach(function(c) {
+        html += '<span class="ai-tag warning">' + c + '</span>';
+      });
+      html += '</div>';
+    }
+  }
+
+  if (mode === 'operator') {
+    html +=
+      '<div class="ai-verdict mono">' + parsed.assessment + '</div>' +
+      '<div class="ai-findings">';
+
+    (parsed.findings || []).forEach(function(f) {
+      const cves = (f.cve_refs || []).map(c =>
+        '<span class="ai-tag critical">' + c + '</span>'
+      ).join('');
+      const iocs = (f.iocs || []).map(i =>
+        '<span class="ai-tag">' + i + '</span>'
+      ).join('');
+
+      html +=
+        '<div class="ai-finding-card">' +
+          '<div class="ai-finding-header">' +
+            severityDot(f.severity) +
+            '<strong>' + f.title + '</strong>' +
+            '<a class="ai-source-link" href="#src-' + encodeURIComponent(f.source) + '">' +
+              'Source: ' + f.source +
+            '</a>' +
+          '</div>' +
+          '<p class="ai-finding-body mono">' + f.detail + '</p>' +
+          (f.exploit_notes ? '<div class="ai-exploit">Exploit notes: ' + f.exploit_notes + '</div>' : '') +
+          (cves ? '<div class="ai-tags">' + cves + '</div>' : '') +
+          (iocs ? '<div class="ai-tags">' + iocs + '</div>' : '') +
+        '</div>';
+    });
+
+    html += '</div>';
+
+    if (parsed.attack_vectors && parsed.attack_vectors.length) {
+      html += '<div class="ai-tags"><strong>Attack Vectors:</strong>';
+      parsed.attack_vectors.forEach(function(v) {
+        html += '<span class="ai-tag warning">' + v + '</span>';
+      });
+      html += '</div>';
+    }
+  }
+
+  if (upsell) {
+    html +=
+      '<div class="ai-upsell">' +
+        '<div class="ai-upsell-title">' + upsell.title + '</div>' +
+        '<div class="ai-upsell-body">' + upsell.body + '</div>' +
+        '<a class="ai-upsell-cta" href="' + upsell.url + '" target="_blank" rel="noopener">' +
+          upsell.cta +
+        '</a>' +
+      '</div>';
+  }
+
+  html += '</div>';
+  renderModeOutput(html);
+}
