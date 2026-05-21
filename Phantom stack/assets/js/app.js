@@ -4,6 +4,7 @@ const API_KEYS = {
   shodan:         { label: 'Shodan',         storageKey: 'pc_key_shodan'         },
   hibp:           { label: 'HIBP',           storageKey: 'pc_key_hibp'           },
   securitytrails: { label: 'SecurityTrails', storageKey: 'pc_key_securitytrails' },
+  github:         { label: 'GitHub',         storageKey: 'pc_key_github'         },
 };
 
 const MODE_DESCRIPTIONS = {
