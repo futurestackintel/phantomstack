@@ -72,10 +72,8 @@ function presentResults(results, target, mode) {
   gaugeAnimate(totalScore);
   setRiskMeta(target, description);
   renderApiCards(results);
-  renderModeOutput(
-    '<p style="color:var(--text-muted);font-size:0.9rem;padding:var(--space-lg)">' +
-    'AI interpretation requires Claude API key. Add your key in API Keys settings to enable Explorer, Analyst and Operator mode analysis.</p>'
-  );
+  runAI(results, detectInputType(target), target, mode);
+}
 }
 
 function delay(ms) {
