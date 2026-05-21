@@ -64,7 +64,8 @@ function renderApiCards(results) {
 
   results.forEach(function(result) {
     const card = document.createElement('div');
-    card.className = 'api-card';
+card.className = 'api-card';
+card.id = 'src-' + encodeURIComponent(result.source);
 
     const severity = result.severity || 'safe';
 
