@@ -74,19 +74,25 @@ const UPSELL_DATA = {
     title: 'Your data is out there.',
     body: 'Learn how to remove yourself from data brokers and lock down your digital footprint.',
     cta: 'Get The Digital Ghost',
-    url: 'https://futurestackintelligence.gumroad.com/l/digital-ghost'
+    url: 'https://futurestackintel.gumroad.com/l/cwxnb'
   },
   dark_web: {
     title: 'Your details may be on the dark web.',
     body: 'Understand how dark web exposure works and what to do about it.',
     cta: 'Get Dark Web Explained',
-    url: 'https://futurestackintelligence.gumroad.com/l/dark-web-explained'
+    url: 'https://futurestackintel.gumroad.com/l/depbg'
+  },
+  agentic_fortress: {
+    title: 'Build a system that protects and runs itself.',
+    body: 'The complete security and automation playbook for developers and founders.',
+    cta: 'Get The Agentic Fortress',
+    url: 'https://futurestackintel.gumroad.com/l/pwghz'
   },
   ethical_hacking: {
     title: 'Want to understand how attackers think?',
     body: 'Learn ethical hacking with AI assistance from zero to first bug bounty.',
     cta: 'Get the AI Ethical Hacking Starter Kit',
-    url: 'https://futurestackintelligence.gumroad.com/l/ethical-hacking-starter'
+    url: null
   }
 };
 
