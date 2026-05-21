@@ -16,6 +16,7 @@ const MODE_DESCRIPTIONS = {
 let currentMode = 'explorer';
 
 document.addEventListener('DOMContentLoaded', function() {
+  cacheCleanExpired();
   renderApiStatusBar();
   loadSavedKeys();
   updateScansRemaining();
@@ -151,6 +152,16 @@ function openSettings() {
 
 function closeSettings() {
   document.getElementById('settingsOverlay').classList.add('hidden');
+}
+
+function forceFreshScan() {
+  const input = document.getElementById('searchInput');
+  const val = input ? input.value.trim() : '';
+  if (!val) return;
+  const validation = validateInput(val);
+  if (!validation.ok) return;
+  cacheClear();
+  runScan(val, validation.type, currentMode);
 }
 
 function saveKeys() {
