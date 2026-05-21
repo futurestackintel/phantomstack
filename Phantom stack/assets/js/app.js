@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
   renderApiStatusBar();
   loadSavedKeys();
   updateScansRemaining();
+  loadSavedMode();
 
   if (!localStorage.getItem('pc_terms')) {
     document.getElementById('termsNotice').classList.remove('hidden');
@@ -32,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       tab.classList.add('active');
       currentMode = tab.dataset.mode;
+      saveMode(currentMode);
       document.getElementById('modeContextText').textContent =
         MODE_DESCRIPTIONS[currentMode];
     });
