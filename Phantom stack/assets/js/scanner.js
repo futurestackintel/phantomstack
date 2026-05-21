@@ -19,6 +19,7 @@ async function runScan(target, type, mode) {
     promises.push(tracked('urlscan.io',            apiUrlscan(target)));
     promises.push(tracked('DNS Lookup',            apiDns(target)));
     promises.push(tracked('Africa Regional Check', apiAfricaCheck(target)));
+    promises.push(tracked('GitHub',               apiGithub(target)));
     promises.push(tracked('VirusTotal',            apiVirusTotal(target, type)));
     promises.push(tracked('SecurityTrails',        apiSecurityTrails(target)));
   }
