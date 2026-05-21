@@ -2,6 +2,8 @@ function terminalShow() {
   document.getElementById('terminalContainer').classList.remove('hidden');
   document.getElementById('resultsContainer').classList.add('hidden');
   document.getElementById('terminalLog').innerHTML = '';
+  setTerminalTitle(currentMode);
+
 }
 
 function terminalSetCmd(target) {
