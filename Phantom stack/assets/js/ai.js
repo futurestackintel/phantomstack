@@ -98,7 +98,10 @@ const UPSELL_DATA = {
 
 async function runAI(results, inputType, target, mode) {
   const key = localStorage.getItem('pc_key_claude');
-  if (!key) return;
+if (!key) {
+  renderFallback(mode);
+  return;
+}
 
   const outputEl = document.getElementById('modeOutput');
   outputEl.innerHTML = '<p style="color:var(--text-muted);font-size:0.9rem;padding:var(--space-lg)">[*] Running AI analysis...</p>';
