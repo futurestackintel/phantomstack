@@ -132,14 +132,6 @@ function initiateScan() {
     return;
   }
 
-  const claudeKey = localStorage.getItem('pc_key_claude');
-  if (!claudeKey) {
-    openSettings();
-    const field = document.getElementById('byok-claude');
-    if (field) flashBorder(field, 'var(--warning)');
-    return;
-  }
-
   incrementRateLimit();
   updateScansRemaining();
 
