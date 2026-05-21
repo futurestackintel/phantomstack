@@ -74,7 +74,6 @@ function presentResults(results, target, mode) {
   renderApiCards(results);
   runAI(results, detectInputType(target), target, mode);
 }
-}
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
