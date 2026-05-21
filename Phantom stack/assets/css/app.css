@@ -958,3 +958,37 @@
   .settings-panel { padding: var(--space-lg); }
   .api-status-bar { flex-direction: column; }
   }
+.byok-test-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.btn-test-key {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-test-key:hover {
+  border-color: var(--cyan-dim);
+  color: var(--cyan);
+}
+
+.btn-test-key:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.byok-test-result {
+  font-size: 0.78rem;
+  font-family: var(--font-body);
+}
