@@ -338,3 +338,57 @@ async function apiSecurityTrails(target) {
     return { source, severity: 'safe', summary: 'Error: ' + e.message, error: e.message, score: 0 };
   }
 }
+async function apiGithub(domain) {
+  const source = 'GitHub';
+  const key = localStorage.getItem('pc_key_github');
+
+  const headers = { 'Accept': 'application/vnd.github.v3+json' };
+  if (key) headers['Authorization'] = 'token ' + key;
+
+  const queries = [
+    encodeURIComponent(domain + ' password'),
+    encodeURIComponent(domain + ' api_key'),
+    encodeURIComponent(domain + ' secret')
+  ];
+
+  try {
+    const results = await Promise.all(queries.map(q =>
+      fetch('https://api.github.com/search/code?q=' + q + '&per_page=5', {
+        headers,
+        signal: AbortSignal.timeout(10000)
+      }).then(r => r.ok ? r.json() : { items: [] })
+    ));
+
+    const items = results.flatMap(r => r.items || []);
+    const unique = [];
+    const seen = new Set();
+
+    items.forEach(function(item) {
+      if (!seen.has(item.html_url)) {
+        seen.add(item.html_url);
+        unique.push({
+          repo: item.repository && item.repository.full_name,
+          file: item.name,
+          url: item.html_url,
+          query: item.name
+        });
+      }
+    });
+
+    const severity = unique.length >= 3 ? 'critical'
+      : unique.length > 0 ? 'warning'
+      : 'safe';
+
+    return {
+      source,
+      severity,
+      summary: unique.length > 0
+        ? unique.length + ' public files referencing ' + domain + ' found on GitHub'
+        : 'No public GitHub exposure found',
+      raw: { results: unique, authenticated: !!key },
+      score: Math.min(unique.length * 12, 36)
+    };
+  } catch (e) {
+    return { source, severity: 'safe', summary: 'Unavailable', error: e.message, score: 0 };
+  }
+}
