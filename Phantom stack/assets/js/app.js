@@ -229,3 +229,135 @@ function flashBorder(el, color) {
   el.style.borderColor = color;
   setTimeout(function() { el.style.borderColor = ''; }, 1500);
 }
+const KEY_VALIDATORS = {
+  claude:         function(k) { return k.startsWith('sk-ant-'); },
+  virustotal:     function(k) { return k.length === 64; },
+  shodan:         function(k) { return k.length >= 32; },
+  hibp:           function(k) { return k.length >= 32; },
+  securitytrails: function(k) { return k.length >= 20; },
+  github:         function(k) { return k.startsWith('ghp_') || k.startsWith('github_pat_'); },
+};
+
+const KEY_TESTS = {
+  claude: async function(k) {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': k,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'hi' }]
+      }),
+      signal: AbortSignal.timeout(10000)
+    });
+    return res.ok;
+  },
+
+  virustotal: async function(k) {
+    const res = await fetch(
+      'https://www.virustotal.com/api/v3/domains/example.com',
+      {
+        headers: { 'x-apikey': k },
+        signal: AbortSignal.timeout(10000)
+      }
+    );
+    return res.ok;
+  },
+
+  shodan: async function(k) {
+    const res = await fetch(
+      'https://api.shodan.io/api-info?key=' + encodeURIComponent(k),
+      { signal: AbortSignal.timeout(10000) }
+    );
+    return res.ok;
+  },
+
+  hibp: async function(k) {
+    const res = await fetch(
+      'https://haveibeenpwned.com/api/v3/breachedaccount/test@example.com',
+      {
+        headers: { 'hibp-api-key': k, 'User-Agent': 'PhantomCheck-OSINT' },
+        signal: AbortSignal.timeout(10000)
+      }
+    );
+    return res.ok || res.status === 404;
+  },
+
+  securitytrails: async function(k) {
+    const res = await fetch(
+      'https://api.securitytrails.com/v1/domain/example.com',
+      {
+        headers: { 'APIKEY': k },
+        signal: AbortSignal.timeout(10000)
+      }
+    );
+    return res.ok;
+  },
+
+  github: async function(k) {
+    const res = await fetch('https://api.github.com/rate_limit', {
+      headers: { 'Authorization': 'token ' + k },
+      signal: AbortSignal.timeout(10000)
+    });
+    return res.ok;
+  }
+};
+
+async function testKey(id) {
+  const input = document.getElementById('key-' + id);
+  const resultEl = document.getElementById('test-result-' + id);
+  const btn = document.getElementById('test-' + id);
+
+  if (!input || !resultEl || !btn) return;
+
+  const val = input.value.trim();
+
+  if (!val) {
+    resultEl.textContent = 'Enter a key first';
+    resultEl.style.color = 'var(--warning)';
+    return;
+  }
+
+  const validator = KEY_VALIDATORS[id];
+  if (validator && !validator(val)) {
+    resultEl.textContent = 'Key format looks wrong';
+    resultEl.style.color = 'var(--critical)';
+    return;
+  }
+
+  btn.textContent = 'Testing...';
+  btn.disabled = true;
+  resultEl.textContent = '';
+
+  try {
+    const tester = KEY_TESTS[id];
+    if (!tester) {
+      resultEl.textContent = 'No test available';
+      resultEl.style.color = 'var(--text-muted)';
+      return;
+    }
+
+    const ok = await tester(val);
+    resultEl.textContent = ok ? '✓ Key works' : '✗ Key rejected by API';
+    resultEl.style.color = ok ? 'var(--safe)' : 'var(--critical)';
+
+    if (ok) {
+      localStorage.setItem(API_KEYS[id].storageKey, val);
+      const ind = document.getElementById('indicator-' + id);
+      if (ind) ind.classList.add('active');
+      const field = document.getElementById('byok-' + id);
+      if (field) field.classList.add('has-key');
+      renderApiStatusBar();
+    }
+  } catch (e) {
+    resultEl.textContent = 'Test failed — check connection';
+    resultEl.style.color = 'var(--warning)';
+  } finally {
+    btn.textContent = 'Test Key';
+    btn.disabled = false;
+  }
+}
