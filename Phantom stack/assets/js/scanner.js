@@ -4,13 +4,13 @@ async function runScan(target, type, mode) {
   terminalSetCmd(target);
 
   const cached = cacheGet(target, type);
-  if (cached) {
-    terminalLog('Cache hit — loading previous result', 'success');
-    await delay(600);
-    presentResults(cached, target, mode);
-    scanBtnState(false);
-    return;
-  }
+if (cached) {
+  terminalLog('Cache hit — results from ' + cacheAge(cached.ts), 'success');
+  await delay(600);
+  presentResults(cached.data, target, mode);
+  scanBtnState(false);
+  return;
+}
 
   const promises = [];
 
