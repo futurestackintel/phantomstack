@@ -1,7 +1,7 @@
 const AI_MODELS = {
   explorer: 'claude-haiku-4-5-20251001',
-  analyst:  'claude-sonnet-4-20250514',
-  operator: 'claude-sonnet-4-20250514'
+  analyst:  'claude-sonnet-4-5-20250514',
+  operator: 'claude-sonnet-4-5-20250514'
 };
 
 const AI_PROMPTS = {
@@ -72,58 +72,61 @@ Respond ONLY with a valid JSON object matching this exact schema. No prose, no m
 const UPSELL_DATA = {
   digital_ghost: {
     title: 'Your data is out there.',
-    body: 'Learn how to remove yourself from data brokers and lock down your digital footprint.',
-    cta: 'Get The Digital Ghost',
-    url: 'https://futurestackintel.gumroad.com/l/cwxnb'
+    body:  'Learn how to remove yourself from data brokers and lock down your digital footprint.',
+    cta:   'Get The Digital Ghost',
+    url:   'https://futurestackintel.gumroad.com/l/cwxnb'
   },
   dark_web: {
     title: 'Your details may be on the dark web.',
-    body: 'Understand how dark web exposure works and what to do about it.',
-    cta: 'Get Dark Web Explained',
-    url: 'https://futurestackintel.gumroad.com/l/depbg'
+    body:  'Understand how dark web exposure works and what to do about it.',
+    cta:   'Get Dark Web Explained',
+    url:   'https://futurestackintel.gumroad.com/l/depbg'
   },
   agentic_fortress: {
     title: 'Build a system that protects and runs itself.',
-    body: 'The complete security and automation playbook for developers and founders.',
-    cta: 'Get The Agentic Fortress',
-    url: 'https://futurestackintel.gumroad.com/l/pwghz'
+    body:  'The complete security and automation playbook for developers and founders.',
+    cta:   'Get The Agentic Fortress',
+    url:   'https://futurestackintel.gumroad.com/l/pwghz'
   },
   ethical_hacking: {
     title: 'Want to understand how attackers think?',
-    body: 'Learn ethical hacking with AI assistance from zero to first bug bounty.',
-    cta: 'Get the AI Ethical Hacking Starter Kit',
-    url: null
+    body:  'Learn ethical hacking with AI assistance from zero to first bug bounty.',
+    cta:   'Get the AI Ethical Hacking Starter Kit',
+    url:   null
   }
 };
 
 async function runAI(results, inputType, target, mode) {
   const key = localStorage.getItem('pc_key_claude');
-if (!key) {
-  renderFallback(mode);
-  return;
-}
+  if (!key) {
+    renderFallback(mode);
+    return;
+  }
 
   const outputEl = document.getElementById('modeOutput');
   outputEl.innerHTML = '<p style="color:var(--text-muted);font-size:0.9rem;padding:var(--space-lg)">[*] Running AI analysis...</p>';
 
-  const payload = results.map(r => ({
-    source:   r.source,
-    summary:  r.summary,
-    severity: r.severity,
-    score:    r.score || 0,
-    raw:      r.raw || null
-  }));
+  const payload = results.map(function(r) {
+    return {
+      source:   r.source,
+      summary:  r.summary,
+      severity: r.severity,
+      score:    r.score || 0,
+      raw:      r.raw || null
+    };
+  });
 
-  const userMsg = 'Input type: ' + inputType + '\nTarget: ' + target + '\n\nRaw scan results:\n' + JSON.stringify(payload, null, 2);
+  const userMsg = 'Input type: ' + inputType + '\nTarget: ' + target +
+    '\n\nRaw scan results:\n' + JSON.stringify(payload, null, 2);
 
   let data;
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Content-Type':         'application/json',
-        'x-api-key':            key,
-        'anthropic-version':    '2023-06-01',
+        'Content-Type':      'application/json',
+        'x-api-key':         key,
+        'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
@@ -133,7 +136,6 @@ if (!key) {
         messages:   [{ role: 'user', content: userMsg }]
       })
     });
-
     data = await res.json();
   } catch (e) {
     outputEl.innerHTML = '<p style="color:var(--critical);padding:var(--space-lg)">[!] AI request failed — check your connection.</p>';
@@ -153,10 +155,9 @@ if (!key) {
 
   let parsed;
   try {
-    const clean = raw.replace(/```json|```/g, '').trim();
-    parsed = JSON.parse(clean);
+    parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
   } catch (e) {
-    outputEl.innerHTML = '<p style="color:var(--critical);padding:var(--space-lg)">[!] Could not parse AI response. Raw output: ' + raw + '</p>';
+    outputEl.innerHTML = '<p style="color:var(--critical);padding:var(--space-lg)">[!] Could not parse AI response.</p>';
     return;
   }
 
