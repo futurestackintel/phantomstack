@@ -29,7 +29,7 @@ const BADGE_LABELS = {
 
 function detectInputType(raw) {
   const val = raw.trim().toLowerCase();
-  if (!val) return INPUT_TYPES.UNKNOWN;
+  if (!val)          return INPUT_TYPES.UNKNOWN;
   if (isEmail(val))  return INPUT_TYPES.EMAIL;
   if (isIP(val))     return INPUT_TYPES.IP;
   if (isDomain(val)) return INPUT_TYPES.DOMAIN;
@@ -42,7 +42,7 @@ function isEmail(val) {
 
 function isIP(val) {
   return /^(\d{1,3}\.){3}\d{1,3}$/.test(val) &&
-    val.split('.').every(n => parseInt(n) <= 255);
+    val.split('.').every(function(n) { return parseInt(n) <= 255; });
 }
 
 function isDomain(val) {
@@ -51,8 +51,8 @@ function isDomain(val) {
 
 function isBlocked(val) {
   const lower = val.toLowerCase();
-  if (BLOCKED_TLDS.some(tld => lower.endsWith(tld))) return true;
-  if (BLOCKED_KEYWORDS.some(kw => lower.includes(kw))) return true;
+  if (BLOCKED_TLDS.some(function(tld) { return lower.endsWith(tld); }))    return true;
+  if (BLOCKED_KEYWORDS.some(function(kw) { return lower.includes(kw); })) return true;
   return false;
 }
 
@@ -60,27 +60,24 @@ function validateInput(val) {
   if (!val) return { ok: false, msg: 'Enter a domain, email or IP address.' };
 
   if (isBlocked(val)) {
-    return {
-      ok: false,
-      msg: 'Government and military targets are blocked on PhantomCheck.'
-    };
+    return { ok: false, msg: 'Government and military targets are blocked on PhantomCheck.' };
   }
 
   const type = detectInputType(val);
-
   if (type === INPUT_TYPES.UNKNOWN) {
-    return {
-      ok: false,
-      msg: 'Not recognised. Enter a domain (site.com), email or IP address.'
-    };
+    return { ok: false, msg: 'Not recognised. Enter a domain (site.com), email or IP address.' };
   }
 
   if (type === INPUT_TYPES.IP) {
     const parts = val.split('.');
     const first = parseInt(parts[0]);
-    if (first === 10 || first === 127 ||
-       (first === 172 && parseInt(parts[1]) >= 16 && parseInt(parts[1]) <= 31) ||
-       (first === 192 && parseInt(parts[1]) === 168)) {
+    const second = parseInt(parts[1]);
+    if (
+      first === 10 ||
+      first === 127 ||
+      (first === 172 && second >= 16 && second <= 31) ||
+      (first === 192 && second === 168)
+    ) {
       return { ok: false, msg: 'Private IP ranges cannot be scanned.' };
     }
   }
@@ -112,7 +109,7 @@ function incrementRateLimit() {
 }
 
 function scansRemaining() {
-  let rl = getRateLimit();
+  const rl = getRateLimit();
   if (rl.date !== todayStr()) return 5;
   return Math.max(0, 5 - rl.count);
-    }
+}
