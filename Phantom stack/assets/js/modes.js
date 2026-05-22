@@ -60,12 +60,11 @@ function loadSavedMode() {
     tab.classList.remove('active');
     if (tab.dataset.mode === saved) tab.classList.add('active');
   });
-  document.getElementById('modeContextText').textContent =
-    MODE_DESCRIPTIONS[saved];
+  document.getElementById('modeContextText').textContent = MODE_DESCRIPTIONS[saved];
 }
 
 function setTerminalTitle(mode) {
-  const el = document.getElementById('terminalTitle');
+  const el = document.getElementById('terminal-title');
   if (el) el.textContent = MODE_TERMINAL_TITLES[mode] || MODE_TERMINAL_TITLES.explorer;
 }
 
