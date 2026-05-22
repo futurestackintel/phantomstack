@@ -86,7 +86,7 @@ function validateInput(val) {
 }
 
 function getRateLimit() {
-  const stored = localStorage.getItem('pc_rl');
+  const stored = localStorage.getItem('__pcs');
   if (!stored) return { count: 0, date: todayStr() };
   return JSON.parse(stored);
 }
@@ -105,7 +105,7 @@ function incrementRateLimit() {
   let rl = getRateLimit();
   if (rl.date !== todayStr()) rl = { count: 0, date: todayStr() };
   rl.count++;
-  localStorage.setItem('pc_rl', JSON.stringify(rl));
+  localStorage.setItem('__pcs', JSON.stringify(rl));
 }
 
 function scansRemaining() {
