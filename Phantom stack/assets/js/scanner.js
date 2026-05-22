@@ -4,13 +4,13 @@ async function runScan(target, type, mode) {
   terminalSetCmd(target);
 
   const cached = cacheGet(target, type);
-if (cached) {
-  terminalLog('Cache hit — results from ' + cacheAge(cached.ts), 'success');
-  await delay(600);
-  presentResults(cached.data, target, mode);
-  scanBtnState(false);
-  return;
-}
+  if (cached) {
+    terminalLog('Cache hit — results from ' + cacheAge(cached.ts), 'success');
+    await delay(600);
+    presentResults(cached.data, target, mode);
+    scanBtnState(false);
+    return;
+  }
 
   const promises = [];
 
@@ -19,7 +19,7 @@ if (cached) {
     promises.push(tracked('urlscan.io',            apiUrlscan(target)));
     promises.push(tracked('DNS Lookup',            apiDns(target)));
     promises.push(tracked('Africa Regional Check', apiAfricaCheck(target)));
-    promises.push(tracked('GitHub',               apiGithub(target)));
+    promises.push(tracked('GitHub',                apiGithub(target)));
     promises.push(tracked('VirusTotal',            apiVirusTotal(target, type)));
     promises.push(tracked('SecurityTrails',        apiSecurityTrails(target)));
   }
@@ -39,7 +39,6 @@ if (cached) {
   }
 
   const results = await Promise.all(promises);
-
   cacheSet(target, type, results);
   presentResults(results, target, mode);
   scanBtnState(false);
@@ -56,12 +55,13 @@ async function tracked(label, promise) {
 }
 
 function presentResults(results, target, mode) {
-  const validResults = results.filter(r => !r.error && r.severity !== undefined);
+  const validResults = results.filter(function(r) {
+    return !r.error && r.severity !== undefined;
+  });
   const totalScore = Math.min(
-    validResults.reduce((sum, r) => sum + (r.score || 0), 0),
+    validResults.reduce(function(sum, r) { return sum + (r.score || 0); }, 0),
     100
   );
-
   const description = totalScore >= 70
     ? 'Significant exposure detected. Review findings below.'
     : totalScore >= 40
@@ -76,5 +76,5 @@ function presentResults(results, target, mode) {
 }
 
 function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(function(resolve) { setTimeout(resolve, ms); });
 }
