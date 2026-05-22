@@ -3,7 +3,6 @@ function terminalShow() {
   document.getElementById('resultsContainer').classList.add('hidden');
   document.getElementById('terminalLog').innerHTML = '';
   setTerminalTitle(currentMode);
-
 }
 
 function terminalSetCmd(target) {
@@ -16,7 +15,7 @@ function terminalLog(msg, status) {
   line.className = 'log-line ' + (status || 'checking');
 
   const prefix = status === 'success' ? '[+]'
-    : status === 'error' ? '[!]'
+    : status === 'error'   ? '[!]'
     : status === 'warning' ? '[~]'
     : '[*]';
 
@@ -33,9 +32,9 @@ function terminalDone() {
 }
 
 function gaugeAnimate(score) {
-  const arc = document.getElementById('gaugeArc');
+  const arc   = document.getElementById('gaugeArc');
   const label = document.getElementById('gaugeScore');
-  const total = 251;
+  const total  = 251;
   const offset = total - (score / 100) * total;
 
   const color = score >= 70 ? 'var(--critical)'
@@ -46,7 +45,7 @@ function gaugeAnimate(score) {
   arc.style.stroke = color;
   arc.setAttribute('stroke-dashoffset', offset);
   label.textContent = score;
-  label.style.fill = color;
+  label.style.fill  = color;
 
   const levelEl = document.getElementById('riskLevel');
   levelEl.textContent = score >= 70 ? 'HIGH RISK'
@@ -56,7 +55,7 @@ function gaugeAnimate(score) {
 }
 
 function setRiskMeta(target, description) {
-  document.getElementById('riskTarget').textContent = target;
+  document.getElementById('riskTarget').textContent      = target;
   document.getElementById('riskDescription').textContent = description;
 }
 
@@ -65,9 +64,9 @@ function renderApiCards(results) {
   container.innerHTML = '<h3 class="section-title">Raw Source Data</h3>';
 
   results.forEach(function(result) {
-    const card = document.createElement('div');
-card.className = 'api-card';
-card.id = 'src-' + encodeURIComponent(result.source);
+    const card     = document.createElement('div');
+    card.className = 'api-card';
+    card.id        = 'src-' + encodeURIComponent(result.source);
 
     const severity = result.severity || 'safe';
 
@@ -94,13 +93,11 @@ function renderCardBody(result) {
   if (result.error) {
     return '<span style="color:var(--critical)">' + result.error + '</span>';
   }
-
   if (result.raw && typeof result.raw === 'object') {
     return '<pre style="font-size:0.78rem;overflow-x:auto;white-space:pre-wrap;color:var(--text-secondary)">' +
       JSON.stringify(result.raw, null, 2) +
       '</pre>';
   }
-
   return '<span style="color:var(--text-muted)">No data returned.</span>';
 }
 
@@ -113,17 +110,20 @@ function scanBtnState(scanning) {
   btn.disabled = scanning;
   btn.querySelector('.scan-btn-text').textContent = scanning ? 'SCANNING' : 'SCAN';
 }
+
 function renderAIOutput(parsed, mode) {
   const upsell = parsed.upsell && parsed.upsell !== 'none' ? UPSELL_DATA[parsed.upsell] : null;
 
-  const severityColor = s =>
-    s === 'critical' ? 'var(--critical)' :
-    s === 'warning'  ? 'var(--warning)'  :
-    'var(--safe)';
+  function severityColor(s) {
+    return s === 'critical' ? 'var(--critical)'
+      : s === 'warning'     ? 'var(--warning)'
+      : 'var(--safe)';
+  }
 
-  const severityDot = s =>
-    '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' +
-    severityColor(s) + ';margin-right:6px"></span>';
+  function severityDot(s) {
+    return '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' +
+      severityColor(s) + ';margin-right:6px"></span>';
+  }
 
   let html = '<div class="ai-output">';
 
@@ -203,12 +203,12 @@ function renderAIOutput(parsed, mode) {
       '<div class="ai-findings">';
 
     (parsed.findings || []).forEach(function(f) {
-      const cves = (f.cve_refs || []).map(c =>
-        '<span class="ai-tag critical">' + c + '</span>'
-      ).join('');
-      const iocs = (f.iocs || []).map(i =>
-        '<span class="ai-tag">' + i + '</span>'
-      ).join('');
+      const cves = (f.cve_refs || []).map(function(c) {
+        return '<span class="ai-tag critical">' + c + '</span>';
+      }).join('');
+      const iocs = (f.iocs || []).map(function(i) {
+        return '<span class="ai-tag">' + i + '</span>';
+      }).join('');
 
       html +=
         '<div class="ai-finding-card">' +
@@ -242,9 +242,12 @@ function renderAIOutput(parsed, mode) {
       '<div class="ai-upsell">' +
         '<div class="ai-upsell-title">' + upsell.title + '</div>' +
         '<div class="ai-upsell-body">' + upsell.body + '</div>' +
-        '<a class="ai-upsell-cta" href="' + upsell.url + '" target="_blank" rel="noopener">' +
-          upsell.cta +
-        '</a>' +
+        (upsell.url
+          ? '<a class="ai-upsell-cta" href="' + upsell.url + '" target="_blank" rel="noopener">' +
+              upsell.cta +
+            '</a>'
+          : '<span class="ai-upsell-cta coming-soon">' + upsell.cta + ' — Coming Soon</span>'
+        ) +
       '</div>';
   }
 
