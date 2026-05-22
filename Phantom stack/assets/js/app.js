@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
   loadSavedKeys();
   updateScansRemaining();
   loadSavedMode();
-  
+
   (function() {
     const params = new URLSearchParams(window.location.search);
     const t = params.get('t');
@@ -29,15 +29,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!t) return;
     const input = document.getElementById('searchInput');
     if (input) input.value = t;
-    if (m && ['explorer', 'analyst', 'operator'].includes(m)) {
-      suggestMode(m);
-    }
+    if (m && ['explorer', 'analyst', 'operator'].includes(m)) suggestMode(m);
     handleInputChange(t);
     if (localStorage.getItem('pc_terms')) {
       setTimeout(function() { runScan(t, detectInputType(t), currentMode); }, 400);
     }
   })();
-  
+
   if (!localStorage.getItem('pc_terms')) {
     document.getElementById('termsNotice').classList.remove('hidden');
   }
@@ -76,11 +74,14 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('scanBtn').addEventListener('click', function() {
     initiateScan();
   });
-  
-  document.getElementById('exportPdfBtn').addEventListener('click', exportPdf);
-  document.getElementById('copyReportBtn').addEventListener('click', copyReport);
-  document.getElementById('shareReportBtn').addEventListener('click', shareReport);
-  
+
+  document.getElementById('resultsContainer').addEventListener('click', function(e) {
+    const id = e.target.id;
+    if (id === 'exportPdfBtn')  exportPdf();
+    if (id === 'copyReportBtn') copyReport();
+    if (id === 'shareReportBtn') shareReport();
+  });
+
   document.getElementById('searchInput').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') initiateScan();
   });
@@ -93,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function handleInputChange(val) {
-  const type = detectInputType(val);
+  const type  = detectInputType(val);
   const badge = document.getElementById('inputTypeBadge');
   const hint  = document.getElementById('inputHint');
 
@@ -115,16 +116,14 @@ function suggestMode(mode) {
     if (tab.dataset.mode === mode) tab.classList.add('active');
   });
   currentMode = mode;
-  document.getElementById('modeContextText').textContent =
-    MODE_DESCRIPTIONS[mode];
+  document.getElementById('modeContextText').textContent = MODE_DESCRIPTIONS[mode];
 }
 
 function initiateScan() {
-  const input = document.getElementById('searchInput');
-  const val   = input.value.trim();
-
-  const terms = localStorage.getItem('pc_terms');
-  const checkbox = document.getElementById('termsCheckbox');
+  const input      = document.getElementById('searchInput');
+  const val        = input.value.trim();
+  const terms      = localStorage.getItem('pc_terms');
+  const checkbox   = document.getElementById('termsCheckbox');
   const termsNotice = document.getElementById('termsNotice');
 
   if (!terms) {
@@ -158,8 +157,6 @@ function initiateScan() {
 
   incrementRateLimit();
   updateScansRemaining();
-
-  // Hands off to scanner — built in Module 4
   runScan(val, validation.type, currentMode);
 }
 
@@ -178,7 +175,7 @@ function closeSettings() {
 
 function forceFreshScan() {
   const input = document.getElementById('searchInput');
-  const val = input ? input.value.trim() : '';
+  const val   = input ? input.value.trim() : '';
   if (!val) return;
   const validation = validateInput(val);
   if (!validation.ok) return;
@@ -195,22 +192,22 @@ function saveKeys() {
     if (val) {
       localStorage.setItem(cfg.storageKey, val);
       saved++;
-      const ind = document.getElementById('indicator-' + id);
-      if (ind) ind.classList.add('active');
+      const ind   = document.getElementById('indicator-' + id);
       const field = document.getElementById('byok-' + id);
+      if (ind)   ind.classList.add('active');
       if (field) field.classList.add('has-key');
     } else {
       localStorage.removeItem(cfg.storageKey);
-      const ind = document.getElementById('indicator-' + id);
-      if (ind) ind.classList.remove('active');
+      const ind   = document.getElementById('indicator-' + id);
       const field = document.getElementById('byok-' + id);
+      if (ind)   ind.classList.remove('active');
       if (field) field.classList.remove('has-key');
     }
   });
 
   renderApiStatusBar();
 
-  const btn = document.getElementById('saveKeysBtn');
+  const btn  = document.getElementById('saveKeysBtn');
   const orig = btn.textContent;
   btn.textContent = saved > 0 ? '✓ ' + saved + ' KEY(S) SAVED' : '✓ KEYS CLEARED';
   setTimeout(function() { btn.textContent = orig; }, 2000);
@@ -224,9 +221,9 @@ function loadSavedKeys() {
     if (!input) return;
     if (saved) {
       input.value = saved;
-      const ind = document.getElementById('indicator-' + id);
-      if (ind) ind.classList.add('active');
+      const ind   = document.getElementById('indicator-' + id);
       const field = document.getElementById('byok-' + id);
+      if (ind)   ind.classList.add('active');
       if (field) field.classList.add('has-key');
     }
   });
@@ -249,7 +246,7 @@ function renderApiStatusBar() {
 function makePill(label, ready) {
   const pill = document.createElement('div');
   pill.className = 'status-pill ' + (ready ? 'ready' : 'missing');
-  const dot = document.createElement('span');
+  const dot  = document.createElement('span');
   dot.className = 'status-pill-dot';
   const text = document.createElement('span');
   text.textContent = label;
@@ -262,6 +259,7 @@ function flashBorder(el, color) {
   el.style.borderColor = color;
   setTimeout(function() { el.style.borderColor = ''; }, 1500);
 }
+
 const KEY_VALIDATORS = {
   claude:         function(k) { return k.startsWith('sk-ant-'); },
   virustotal:     function(k) { return k.length === 64; },
@@ -276,14 +274,14 @@ const KEY_TESTS = {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'x-api-key': k,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
+        'x-api-key':          k,
+        'anthropic-version':  '2023-06-01',
+        'content-type':       'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model:     'claude-haiku-4-5-20251001',
         max_tokens: 10,
-        messages: [{ role: 'user', content: 'hi' }]
+        messages:  [{ role: 'user', content: 'hi' }]
       }),
       signal: AbortSignal.timeout(10000)
     });
@@ -295,7 +293,7 @@ const KEY_TESTS = {
       'https://www.virustotal.com/api/v3/domains/example.com',
       {
         headers: { 'x-apikey': k },
-        signal: AbortSignal.timeout(10000)
+        signal:  AbortSignal.timeout(10000)
       }
     );
     return res.ok;
@@ -314,7 +312,7 @@ const KEY_TESTS = {
       'https://haveibeenpwned.com/api/v3/breachedaccount/test@example.com',
       {
         headers: { 'hibp-api-key': k, 'User-Agent': 'PhantomCheck-OSINT' },
-        signal: AbortSignal.timeout(10000)
+        signal:  AbortSignal.timeout(10000)
       }
     );
     return res.ok || res.status === 404;
@@ -325,7 +323,7 @@ const KEY_TESTS = {
       'https://api.securitytrails.com/v1/domain/example.com',
       {
         headers: { 'APIKEY': k },
-        signal: AbortSignal.timeout(10000)
+        signal:  AbortSignal.timeout(10000)
       }
     );
     return res.ok;
@@ -334,16 +332,16 @@ const KEY_TESTS = {
   github: async function(k) {
     const res = await fetch('https://api.github.com/rate_limit', {
       headers: { 'Authorization': 'token ' + k },
-      signal: AbortSignal.timeout(10000)
+      signal:  AbortSignal.timeout(10000)
     });
     return res.ok;
   }
 };
 
 async function testKey(id) {
-  const input = document.getElementById('key-' + id);
+  const input    = document.getElementById('key-' + id);
   const resultEl = document.getElementById('test-result-' + id);
-  const btn = document.getElementById('test-' + id);
+  const btn      = document.getElementById('test-' + id);
 
   if (!input || !resultEl || !btn) return;
 
@@ -363,7 +361,7 @@ async function testKey(id) {
   }
 
   btn.textContent = 'Testing...';
-  btn.disabled = true;
+  btn.disabled    = true;
   resultEl.textContent = '';
 
   try {
@@ -373,16 +371,15 @@ async function testKey(id) {
       resultEl.style.color = 'var(--text-muted)';
       return;
     }
-
     const ok = await tester(val);
     resultEl.textContent = ok ? '✓ Key works' : '✗ Key rejected by API';
     resultEl.style.color = ok ? 'var(--safe)' : 'var(--critical)';
 
     if (ok) {
       localStorage.setItem(API_KEYS[id].storageKey, val);
-      const ind = document.getElementById('indicator-' + id);
-      if (ind) ind.classList.add('active');
+      const ind   = document.getElementById('indicator-' + id);
       const field = document.getElementById('byok-' + id);
+      if (ind)   ind.classList.add('active');
       if (field) field.classList.add('has-key');
       renderApiStatusBar();
     }
@@ -391,7 +388,7 @@ async function testKey(id) {
     resultEl.style.color = 'var(--warning)';
   } finally {
     btn.textContent = 'Test Key';
-    btn.disabled = false;
+    btn.disabled    = false;
   }
 }
 
@@ -428,7 +425,6 @@ function exportPdf() {
 
   document.head.appendChild(style);
   document.getElementById('resultsContainer').insertAdjacentElement('afterbegin', header);
-
   window.print();
 
   setTimeout(function() {
@@ -462,7 +458,7 @@ function copyReport() {
     stripHtml(apiOut);
 
   navigator.clipboard.writeText(text).then(function() {
-    const btn = document.getElementById('copyReportBtn');
+    const btn  = document.getElementById('copyReportBtn');
     const orig = btn.textContent;
     btn.textContent = '✓ Copied';
     setTimeout(function() { btn.textContent = orig; }, 2000);
@@ -484,7 +480,7 @@ function shareReport() {
   url.hash = '';
 
   navigator.clipboard.writeText(url.toString()).then(function() {
-    const btn = document.getElementById('shareReportBtn');
+    const btn  = document.getElementById('shareReportBtn');
     const orig = btn.textContent;
     btn.textContent = '✓ Link copied';
     setTimeout(function() { btn.textContent = orig; }, 2500);
