@@ -1,7 +1,7 @@
 const AI_MODELS = {
   explorer: 'claude-haiku-4-5-20251001',
-  analyst:  'claude-sonnet-4-5-20250514',
-  operator: 'claude-sonnet-4-5-20250514'
+  analyst:  'claude-sonnet-4-6',
+  operator: 'claude-sonnet-4-6'
 };
 
 const AI_PROMPTS = {
