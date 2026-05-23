@@ -382,3 +382,227 @@ async function apiGithub(domain) {
     return { source, severity: 'safe', summary: 'Unavailable', error: e.message, score: 0 };
   }
 }
+
+async function apiWhois(domain) {
+  const source = 'Whois/RDAP';
+  try {
+    const res = await fetch(
+      'https://rdap.org/domain/' + encodeURIComponent(domain),
+      { signal: AbortSignal.timeout(10000) }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    const registrar  = (data.entities || []).find(function(e) {
+      return e.roles && e.roles.includes('registrar');
+    });
+    const registrant = (data.entities || []).find(function(e) {
+      return e.roles && e.roles.includes('registrant');
+    });
+
+    const events    = data.events || [];
+    const created   = (events.find(function(e) { return e.eventAction === 'registration'; }) || {}).eventDate || null;
+    const expires   = (events.find(function(e) { return e.eventAction === 'expiration'; })    || {}).eventDate || null;
+    const updated   = (events.find(function(e) { return e.eventAction === 'last changed'; })  || {}).eventDate || null;
+
+    const expirySoon = expires && (new Date(expires) - Date.now()) < 30 * 24 * 60 * 60 * 1000;
+    const score      = expirySoon ? 10 : 0;
+
+    return {
+      source,
+      severity: expirySoon ? 'warning' : 'safe',
+      summary:  'Registered via ' +
+        (registrar && registrar.vcardArray ? registrar.vcardArray[1].find(function(v) { return v[0] === 'fn'; })[3] : 'unknown registrar') +
+        (expirySoon ? ' — EXPIRES SOON' : ''),
+      raw: {
+        registrar:       registrar ? (registrar.vcardArray || []) : null,
+        registrant_org:  registrant ? (registrant.vcardArray || []) : null,
+        created,
+        expires,
+        updated,
+        status:          data.status || [],
+        nameservers:     (data.nameservers || []).map(function(n) { return n.ldhName; }),
+        expiry_soon:     expirySoon
+      },
+      score
+    };
+  } catch (e) {
+    return { source, severity: 'safe', summary: 'Unavailable', error: e.message, score: 0 };
+  }
+}
+
+async function apiGoogleSafeBrowsing(target) {
+  const source = 'Google Safe Browsing';
+  const key    = localStorage.getItem('pc_key_gsb');
+  if (!key) return { source, severity: 'safe', summary: 'No API key — skipped', score: 0 };
+
+  try {
+    const body = {
+      client:    { clientId: 'phantomcheck', clientVersion: '1.0' },
+      threatInfo: {
+        threatTypes:      ['MALWARE', 'SOCIAL_ENGINEERING', 'UNWANTED_SOFTWARE', 'POTENTIALLY_HARMFUL_APPLICATION'],
+        platformTypes:    ['ANY_PLATFORM'],
+        threatEntryTypes: ['URL'],
+        threatEntries:    [{ url: 'https://' + target }]
+      }
+    };
+
+    const res = await fetch(
+      'https://safebrowsing.googleapis.com/v4/threatMatches:find?key=' + key,
+      {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body),
+        signal:  AbortSignal.timeout(10000)
+      }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data    = await res.json();
+    const matches = data.matches || [];
+
+    return {
+      source,
+      severity: matches.length > 0 ? 'critical' : 'safe',
+      summary:  matches.length > 0
+        ? matches.length + ' threat(s) flagged by Google: ' + [...new Set(matches.map(function(m) { return m.threatType; }))].join(', ')
+        : 'No threats detected by Google Safe Browsing',
+      raw:   { matches },
+      score: matches.length * 30
+    };
+  } catch (e) {
+    return { source, severity: 'safe', summary: 'Error: ' + e.message, error: e.message, score: 0 };
+  }
+}
+
+function analyzeSpfDkimDmarc(dnsRaw) {
+  const source = 'SPF/DKIM/DMARC';
+
+  if (!dnsRaw || !dnsRaw.records) {
+    return { source, severity: 'safe', summary: 'DNS data unavailable — skipped', score: 0 };
+  }
+
+  const txt      = dnsRaw.records.TXT || [];
+  const spf      = txt.find(function(t) { return t.includes('v=spf1'); })      || null;
+  const dmarc    = txt.find(function(t) { return t.includes('v=DMARC1'); })    || null;
+  const dkim     = txt.find(function(t) { return t.includes('v=DKIM1'); })     || null;
+
+  const issues   = [];
+  if (!spf)   issues.push('No SPF record — anyone can spoof email from this domain');
+  if (!dmarc) issues.push('No DMARC policy — spoofed emails reach inboxes with no quarantine or reject rule');
+  if (!dkim)  issues.push('No DKIM record found in TXT — email integrity cannot be verified by receivers');
+
+  const dmarcPolicy = dmarc ? (dmarc.match(/p=([^;]+)/) || [])[1] : null;
+  if (dmarcPolicy === 'none') issues.push('DMARC policy is p=none — monitoring only, no enforcement');
+
+  const score    = issues.length * 10;
+  const severity = issues.length >= 3 ? 'critical' : issues.length >= 1 ? 'warning' : 'safe';
+
+  return {
+    source,
+    severity,
+    summary: issues.length === 0
+      ? 'SPF, DKIM and DMARC all present — email authentication looks solid'
+      : issues.length + ' email authentication issue(s) found',
+    raw: {
+      spf_record:    spf,
+      dkim_record:   dkim,
+      dmarc_record:  dmarc,
+      dmarc_policy:  dmarcPolicy,
+      issues
+    },
+    score
+  };
+}
+
+async function apiWayback(domain) {
+  const source = 'Wayback Machine';
+  try {
+    const res = await fetch(
+      'https://archive.org/wayback/available?url=' + encodeURIComponent(domain),
+      { signal: AbortSignal.timeout(10000) }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data     = await res.json();
+    const snapshot = data.archived_snapshots && data.archived_snapshots.closest;
+
+    if (!snapshot || !snapshot.available) {
+      return {
+        source,
+        severity: 'safe',
+        summary:  'No archived snapshots found — domain may be new or never indexed',
+        raw:      { available: false },
+        score:    0
+      };
+    }
+
+    const snapDate  = new Date(
+      snapshot.timestamp.replace(
+        /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/,
+        '$1-$2-$3T$4:$5:$6Z'
+      )
+    );
+    const ageYears  = (Date.now() - snapDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
+    const ageSummary = ageYears >= 1
+      ? 'oldest snapshot ' + Math.floor(ageYears) + ' year(s) ago'
+      : 'snapshot within the last year';
+
+    return {
+      source,
+      severity: 'safe',
+      summary:  'Domain has archive history — ' + ageSummary,
+      raw: {
+        available:       true,
+        snapshot_url:    snapshot.url,
+        snapshot_date:   snapshot.timestamp,
+        age_years:       Math.round(ageYears * 10) / 10,
+        status:          snapshot.status
+      },
+      score: 0
+    };
+  } catch (e) {
+    return { source, severity: 'safe', summary: 'Unavailable', error: e.message, score: 0 };
+  }
+}
+
+async function apiIpinfo(ip) {
+  const source = 'IPinfo';
+  try {
+    const res = await fetch(
+      'https://ipinfo.io/' + encodeURIComponent(ip) + '/json',
+      { signal: AbortSignal.timeout(10000) }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data    = await res.json();
+    const isVpn   = data.org && (
+      data.org.toLowerCase().includes('vpn')    ||
+      data.org.toLowerCase().includes('proxy')  ||
+      data.org.toLowerCase().includes('hosting')||
+      data.org.toLowerCase().includes('cloud')
+    );
+    const isTor   = data.org && data.org.toLowerCase().includes('tor');
+    const flags   = [];
+    if (isTor) flags.push('Tor exit node detected');
+    if (isVpn) flags.push('Possible VPN or hosting provider — anonymisation likely');
+
+    return {
+      source,
+      severity: isTor ? 'critical' : isVpn ? 'warning' : 'safe',
+      summary:  data.org + ' — ' + (data.city || '') + ', ' + (data.country || '') +
+        (flags.length ? ' — ' + flags.join('; ') : ''),
+      raw: {
+        ip:       data.ip,
+        city:     data.city,
+        region:   data.region,
+        country:  data.country,
+        org:      data.org,
+        timezone: data.timezone,
+        is_vpn:   isVpn,
+        is_tor:   isTor,
+        hostname: data.hostname || null
+      },
+      score: isTor ? 30 : isVpn ? 10 : 0
+    };
+  } catch (e) {
+    return { source, severity: 'safe', summary: 'Unavailable', error: e.message, score: 0 };
+  }
+}
