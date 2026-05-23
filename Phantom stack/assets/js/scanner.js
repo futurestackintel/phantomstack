@@ -12,33 +12,59 @@ async function runScan(target, type, mode) {
     return;
   }
 
-  const promises = [];
+  var results = [];
 
   if (type === INPUT_TYPES.DOMAIN) {
-    promises.push(tracked('crt.sh',               apiCrtSh(target)));
-    promises.push(tracked('urlscan.io',            apiUrlscan(target)));
-    promises.push(tracked('DNS Lookup',            apiDns(target)));
-    promises.push(tracked('Africa Regional Check', apiAfricaCheck(target)));
-    promises.push(tracked('GitHub',                apiGithub(target)));
-    promises.push(tracked('VirusTotal',            apiVirusTotal(target, type)));
-    promises.push(tracked('SecurityTrails',        apiSecurityTrails(target)));
+    // Stage 1 — DNS first so SPF/DKIM/DMARC can consume its output
+    const dnsResult = await tracked('DNS Lookup', apiDns(target));
+
+    // Stage 2 — everything else fires in parallel
+    const wave2 = await Promise.all([
+      tracked('crt.sh',               apiCrtSh(target)),
+      tracked('urlscan.io',            apiUrlscan(target)),
+      tracked('Africa Regional Check', apiAfricaCheck(target)),
+      tracked('GitHub',                apiGithub(target)),
+      tracked('VirusTotal',            apiVirusTotal(target, type)),
+      tracked('SecurityTrails',        apiSecurityTrails(target)),
+      tracked('Whois/RDAP',            apiWhois(target)),
+      tracked('Google Safe Browsing',  apiGoogleSafeBrowsing(target)),
+      tracked('Wayback Machine',       apiWayback(target)),
+      tracked('SPF/DKIM/DMARC',        Promise.resolve(analyzeSpfDkimDmarc(dnsResult.raw)))
+    ]);
+
+    results = [dnsResult].concat(wave2);
   }
 
   if (type === INPUT_TYPES.IP) {
-    promises.push(tracked('AbuseIPDB',  apiAbuseIPDB(target)));
-    promises.push(tracked('VirusTotal', apiVirusTotal(target, type)));
-    promises.push(tracked('Shodan',     apiShodan(target, type)));
+    const wave = await Promise.all([
+      tracked('AbuseIPDB',   apiAbuseIPDB(target)),
+      tracked('VirusTotal',  apiVirusTotal(target, type)),
+      tracked('Shodan',      apiShodan(target, type)),
+      tracked('IPinfo',      apiIpinfo(target))
+    ]);
+    results = wave;
   }
 
   if (type === INPUT_TYPES.EMAIL) {
     const domain = target.split('@')[1];
-    promises.push(tracked('DNS Lookup',            apiDns(domain)));
-    promises.push(tracked('Africa Regional Check', apiAfricaCheck(domain)));
-    promises.push(tracked('HaveIBeenPwned',        apiHIBP(target)));
-    promises.push(tracked('VirusTotal',            apiVirusTotal(domain, INPUT_TYPES.DOMAIN)));
+
+    // Stage 1 — DNS first for the email domain
+    const dnsResult = await tracked('DNS Lookup', apiDns(domain));
+
+    // Stage 2 — everything else in parallel
+    const wave2 = await Promise.all([
+      tracked('Africa Regional Check', apiAfricaCheck(domain)),
+      tracked('HaveIBeenPwned',        apiHIBP(target)),
+      tracked('VirusTotal',            apiVirusTotal(domain, INPUT_TYPES.DOMAIN)),
+      tracked('Whois/RDAP',            apiWhois(domain)),
+      tracked('Google Safe Browsing',  apiGoogleSafeBrowsing(domain)),
+      tracked('Wayback Machine',       apiWayback(domain)),
+      tracked('SPF/DKIM/DMARC',        Promise.resolve(analyzeSpfDkimDmarc(dnsResult.raw)))
+    ]);
+
+    results = [dnsResult].concat(wave2);
   }
 
-  const results = await Promise.all(promises);
   cacheSet(target, type, results);
   presentResults(results, target, mode);
   scanBtnState(false);
