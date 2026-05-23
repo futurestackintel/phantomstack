@@ -5,6 +5,7 @@ const API_KEYS = {
   hibp:           { label: 'HIBP',           storageKey: 'pc_key_hibp'           },
   securitytrails: { label: 'SecurityTrails', storageKey: 'pc_key_securitytrails' },
   github:         { label: 'GitHub',         storageKey: 'pc_key_github'         },
+  gsb:            { label: 'Google Safe Browsing', storageKey: 'pc_key_gsb'      },
 };
 
 const MODE_DESCRIPTIONS = {
@@ -234,7 +235,7 @@ function renderApiStatusBar() {
   if (!container) return;
   container.innerHTML = '';
 
-  ['crt.sh', 'urlscan.io', 'AbuseIPDB', 'DNS', 'Africa Check'].forEach(function(name) {
+  ['crt.sh', 'urlscan.io', 'AbuseIPDB', 'DNS', 'Africa Check', 'Whois', 'Wayback', 'IPinfo', 'SPF/DMARC'].forEach(function(name) {
     container.appendChild(makePill(name, true));
   });
 
@@ -267,6 +268,7 @@ const KEY_VALIDATORS = {
   hibp:           function(k) { return k.length >= 32; },
   securitytrails: function(k) { return k.length >= 20; },
   github:         function(k) { return k.startsWith('ghp_') || k.startsWith('github_pat_'); },
+  gsb:            function(k) { return k.startsWith('AIza') && k.length >= 35; },
 };
 
 const KEY_TESTS = {
@@ -334,6 +336,27 @@ const KEY_TESTS = {
       headers: { 'Authorization': 'token ' + k },
       signal:  AbortSignal.timeout(10000)
     });
+    return res.ok;
+  },
+
+  gsb: async function(k) {
+    const res = await fetch(
+      'https://safebrowsing.googleapis.com/v4/threatMatches:find?key=' + encodeURIComponent(k),
+      {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          client:     { clientId: 'phantomcheck', clientVersion: '1.0' },
+          threatInfo: {
+            threatTypes:      ['MALWARE'],
+            platformTypes:    ['ANY_PLATFORM'],
+            threatEntryTypes: ['URL'],
+            threatEntries:    [{ url: 'https://example.com' }]
+          }
+        }),
+        signal: AbortSignal.timeout(10000)
+      }
+    );
     return res.ok;
   }
 };
