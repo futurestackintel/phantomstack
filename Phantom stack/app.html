@@ -315,13 +315,38 @@
             <div class="byok-indicator active"></div>
             <div>
               <div class="byok-name">Africa Regional Check</div>
-              <div class="byok-description">
-                .ng · .za domain exposure · African hosting vulnerabilities
-              </div>
+              <div class="byok-description">.ng · .za domain exposure · African hosting vulnerabilities</div>
+            </div>
+          </div>
+          <div class="byok-free-item">
+            <div class="byok-indicator active"></div>
+            <div>
+              <div class="byok-name">Whois/RDAP</div>
+              <div class="byok-description">Domain registration · registrar · creation and expiry dates</div>
+            </div>
+          </div>
+          <div class="byok-free-item">
+            <div class="byok-indicator active"></div>
+            <div>
+              <div class="byok-name">Wayback Machine</div>
+              <div class="byok-description">Historical snapshots · deleted pages · domain age context</div>
+            </div>
+          </div>
+          <div class="byok-free-item">
+            <div class="byok-indicator active"></div>
+            <div>
+              <div class="byok-name">IPinfo</div>
+              <div class="byok-description">Geolocation · ISP · VPN detection · Tor exit node check</div>
+            </div>
+          </div>
+          <div class="byok-free-item">
+            <div class="byok-indicator active"></div>
+            <div>
+              <div class="byok-name">SPF / DKIM / DMARC</div>
+              <div class="byok-description">Email authentication analysis · spoofing vulnerability check</div>
             </div>
           </div>
         </div>
-      </div>
 
       <!-- Premium BYOK APIs -->
       <div class="byok-section">
@@ -480,6 +505,35 @@
 
       </div>
 
+        <div class="byok-field" id="byok-gsb">
+          <div class="byok-field-header">
+            <div class="byok-field-left">
+              <div class="byok-indicator" id="indicator-gsb"></div>
+              <div>
+                <div class="byok-name">Google Safe Browsing</div>
+                <div class="byok-description">
+                  Phishing · malware · unwanted software flags from Google
+                </div>
+              </div>
+            </div>
+            <a href="https://developers.google.com/safe-browsing/v4/get-started"
+               target="_blank" class="byok-get-key">Get free key →</a>
+          </div>
+          <input
+            type="password"
+            class="byok-input"
+            id="key-gsb"
+            placeholder="AIza..."
+            autocomplete="off"
+          >
+          <div class="byok-test-row">
+            <button class="btn-test-key" id="test-gsb" onclick="testKey('gsb')">
+              Test Key
+            </button>
+            <span class="byok-test-result" id="test-result-gsb"></span>
+          </div>
+        </div>
+        
       <!-- Save button -->
       <button class="btn-save-keys" id="saveKeysBtn">
         SAVE KEYS TO BROWSER
