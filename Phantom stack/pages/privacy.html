@@ -3,12 +3,364 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privacy Policy— PhantomCheck</title>
+  <title>Privacy Policy — PhantomCheck</title>
+  <meta name="description" content="PhantomCheck Privacy Policy. No servers. No tracking. Your data stays in your browser.">
   <link rel="stylesheet" href="../assets/css/global.css">
+  <style>
+    body {
+      background: var(--bg, #080e1f);
+      color: var(--text, #e8f4ff);
+      font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .legal-nav {
+      border-bottom: 1px solid rgba(0, 234, 255, 0.1);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .legal-nav-logo {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: #e8f4ff;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+    .legal-nav-logo span { color: #00eaff; }
+    .legal-nav-back {
+      font-size: 0.85rem;
+      color: #7a9cc4;
+      text-decoration: none;
+      border: 1px solid rgba(0, 234, 255, 0.2);
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .legal-nav-back:hover { color: #00eaff; border-color: #00eaff; }
+    .legal-page {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+    .legal-header {
+      margin-bottom: 3rem;
+      border-bottom: 1px solid rgba(0, 234, 255, 0.1);
+      padding-bottom: 2rem;
+    }
+    .legal-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: #00eaff;
+      border: 1px solid rgba(0, 234, 255, 0.3);
+      padding: 0.25rem 0.75rem;
+      border-radius: 3px;
+      margin-bottom: 1rem;
+    }
+    .legal-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      font-weight: 900;
+      color: #e8f4ff;
+      margin: 0 0 0.5rem;
+      line-height: 1.2;
+    }
+    .legal-meta { font-size: 0.85rem; color: #7a9cc4; }
+    .legal-page h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #00eaff;
+      letter-spacing: 0.1em;
+      margin: 2.5rem 0 0.75rem;
+      text-transform: uppercase;
+    }
+    .legal-page p {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #b8d4ee;
+      margin: 0 0 1rem;
+    }
+    .legal-page ul { margin: 0 0 1rem; padding-left: 1.5rem; }
+    .legal-page ul li {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #b8d4ee;
+      margin-bottom: 0.35rem;
+    }
+    .legal-good {
+      background: rgba(52, 199, 89, 0.07);
+      border: 1px solid rgba(52, 199, 89, 0.25);
+      border-left: 3px solid #34c759;
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+    .legal-good p { color: #a8e6b8; margin: 0; font-weight: 600; }
+    .legal-info {
+      background: rgba(0, 234, 255, 0.05);
+      border: 1px solid rgba(0, 234, 255, 0.15);
+      border-left: 3px solid #00eaff;
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+    .legal-info p { color: #9dd4e8; margin: 0; }
+    .legal-page a { color: #00eaff; text-decoration: none; }
+    .legal-page a:hover { text-decoration: underline; }
+    .ls-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0 1.5rem;
+      font-size: 0.9rem;
+    }
+    .ls-table th {
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      background: rgba(0, 234, 255, 0.07);
+      color: #00eaff;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(0, 234, 255, 0.15);
+    }
+    .ls-table td {
+      padding: 0.6rem 0.75rem;
+      color: #b8d4ee;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      vertical-align: top;
+    }
+    .ls-table tr:last-child td { border-bottom: none; }
+    .ls-table code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: #00eaff;
+      background: rgba(0, 234, 255, 0.08);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+    }
+    .legal-footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(0, 234, 255, 0.1);
+      font-size: 0.85rem;
+      color: #7a9cc4;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .legal-footer a { color: #7a9cc4; }
+    .legal-footer a:hover { color: #00eaff; }
+  </style>
 </head>
-<body style="max-width:680px; margin:0 auto; padding:40px 20px;">
-  <a href="/waitlist.html" style="font-size:0.9rem; color:#7a9cc4;">← Back</a>
-  <h1 style="margin: 32px 0 16px;">Terms of Service</h1>
-  <p style="color:#7a9cc4;">Full terms written in Module 13.</p>
+<body>
+
+  <nav class="legal-nav">
+    <a href="../app.html" class="legal-nav-logo">Phantom<span>Check</span></a>
+    <a href="../app.html" class="legal-nav-back">← Back to App</a>
+  </nav>
+
+  <div class="legal-page">
+
+    <div class="legal-header">
+      <div class="legal-badge">LEGAL</div>
+      <h1 class="legal-title">Privacy Policy</h1>
+      <p class="legal-meta">
+        Last updated: May 2025 · PhantomCheck by FutureStack Intelligence · Ilorin, Nigeria
+      </p>
+    </div>
+
+    <div class="legal-good">
+      <p>
+        ✓ PhantomCheck has no servers, no database, and no accounts. We cannot collect your data 
+        because we have nowhere to put it. Everything stays in your browser.
+      </p>
+    </div>
+
+    <h2>1. Overview</h2>
+    <p>
+      PhantomCheck is a fully client-side, browser-based tool. It does not operate any backend 
+      servers, does not use cookies, and does not collect or transmit any personal data to 
+      FutureStack Intelligence. This privacy policy explains exactly what data is stored, where, and why.
+    </p>
+
+    <h2>2. Data We Do NOT Collect</h2>
+    <p>FutureStack Intelligence does not collect, store, or have access to:</p>
+    <ul>
+      <li>Your name, email address, or any personal identifiers</li>
+      <li>Your scan targets (domains, emails, IPs you search)</li>
+      <li>Your API keys for Claude, VirusTotal, Shodan, or any other service</li>
+      <li>Your scan results or history</li>
+      <li>Your IP address or location</li>
+      <li>Any usage analytics or behaviour tracking</li>
+    </ul>
+
+    <h2>3. What Is Stored Locally</h2>
+    <p>
+      PhantomCheck stores the following data in your browser's localStorage only. 
+      This data never leaves your device.
+    </p>
+
+    <table class="ls-table">
+      <thead>
+        <tr>
+          <th>Key</th>
+          <th>What it stores</th>
+          <th>Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>pc_terms</code></td>
+          <td>Terms acceptance flag</td>
+          <td>So you are not shown the terms checkbox on every visit</td>
+        </tr>
+        <tr>
+          <td><code>__pcs</code></td>
+          <td>Daily scan count and date</td>
+          <td>To enforce the 5 scans per day rate limit</td>
+        </tr>
+        <tr>
+          <td><code>pc_mode</code></td>
+          <td>Your last selected output mode</td>
+          <td>To remember Explorer, Analyst, or Operator preference</td>
+        </tr>
+        <tr>
+          <td><code>pc_key_claude</code></td>
+          <td>Your Claude API key</td>
+          <td>So you do not have to re-enter it every session</td>
+        </tr>
+        <tr>
+          <td><code>pc_key_virustotal</code></td>
+          <td>Your VirusTotal API key</td>
+          <td>Same as above</td>
+        </tr>
+        <tr>
+          <td><code>pc_key_shodan</code></td>
+          <td>Your Shodan API key</td>
+          <td>Same as above</td>
+        </tr>
+        <tr>
+          <td><code>pc_key_hibp</code></td>
+          <td>Your HaveIBeenPwned key</td>
+          <td>Same as above</td>
+        </tr>
+        <tr>
+          <td><code>pc_key_securitytrails</code></td>
+          <td>Your SecurityTrails key</td>
+          <td>Same as above</td>
+        </tr>
+        <tr>
+          <td><code>pc_key_github</code></td>
+          <td>Your GitHub token</td>
+          <td>Same as above</td>
+        </tr>
+        <tr>
+          <td><code>pc_cache[type]_[target]</code></td>
+          <td>Cached scan results</td>
+          <td>To avoid re-scanning the same target repeatedly</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="legal-info">
+      <p>
+        To delete all locally stored data: open your browser settings, find "Clear browsing data" 
+        or "Storage", and clear localStorage for phantomstack.pages.dev. All keys and cached 
+        results will be permanently removed.
+      </p>
+    </div>
+
+    <h2>4. Third-Party APIs</h2>
+    <p>
+      When you run a scan, PhantomCheck sends your target (domain, email, or IP) directly from 
+      your browser to the following third-party APIs. Each request goes from your browser to their 
+      servers — not through FutureStack Intelligence.
+    </p>
+    <ul>
+      <li>
+        <strong>Anthropic (Claude)</strong> — AI interpretation of scan results.
+        <a href="https://www.anthropic.com/privacy" target="_blank">Privacy policy →</a>
+      </li>
+      <li>
+        <strong>VirusTotal</strong> — malware and reputation data.
+        <a href="https://support.virustotal.com/hc/en-us/articles/115002168385-Privacy-Policy" target="_blank">Privacy policy →</a>
+      </li>
+      <li>
+        <strong>Shodan</strong> — exposed port and service data.
+        <a href="https://www.shodan.io/privacy" target="_blank">Privacy policy →</a>
+      </li>
+      <li>
+        <strong>HaveIBeenPwned</strong> — email breach data.
+        <a href="https://haveibeenpwned.com/Privacy" target="_blank">Privacy policy →</a>
+      </li>
+      <li>
+        <strong>SecurityTrails</strong> — DNS history data.
+        <a href="https://securitytrails.com/privacy" target="_blank">Privacy policy →</a>
+      </li>
+      <li>
+        <strong>GitHub</strong> — public repository scanning.
+        <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank">Privacy policy →</a>
+      </li>
+      <li>
+        <strong>crt.sh, urlscan.io, AbuseIPDB</strong> — free public APIs, no key required. 
+        Queries go directly from your browser to their servers.
+      </li>
+    </ul>
+    <p>
+      By using PhantomCheck, you acknowledge that your scan targets will be transmitted to 
+      whichever of the above APIs you have enabled. Review each provider's privacy policy 
+      for their data handling practices.
+    </p>
+
+    <h2>5. Waitlist</h2>
+    <p>
+      If you joined the PhantomCheck waitlist, your email address was stored only in your 
+      browser's localStorage on the waitlist page. It was not transmitted to any server. 
+      We do not currently operate an email marketing platform or mailing list backend.
+    </p>
+
+    <h2>6. Cloudflare Pages</h2>
+    <p>
+      PhantomCheck is hosted on Cloudflare Pages. Cloudflare may collect standard web server 
+      logs including your IP address and browser information as part of serving the application. 
+      This is outside FutureStack Intelligence's control. See 
+      <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Cloudflare's privacy policy</a> 
+      for details.
+    </p>
+
+    <h2>7. Children</h2>
+    <p>
+      PhantomCheck is not directed at children under 13. We do not knowingly collect any 
+      information from children.
+    </p>
+
+    <h2>8. Changes to This Policy</h2>
+    <p>
+      This policy may be updated as the product evolves. The "Last updated" date at the top 
+      of this page will always reflect the current version. For major changes, we will note 
+      them clearly.
+    </p>
+
+    <h2>9. Contact</h2>
+    <p>
+      Privacy questions or data concerns:
+      <a href="mailto:futurestack001@gmail.com?subject=PhantomCheck Privacy Inquiry">
+        futurestack001@gmail.com
+      </a>
+    </p>
+
+    <div class="legal-footer">
+      <span>PhantomCheck · <a href="https://github.com/futurestackintel/phantomcheck" target="_blank">MIT License</a></span>
+      <span><a href="terms.html">Terms of Service</a> · <a href="../app.html">Back to App</a></span>
+    </div>
+
+  </div>
 </body>
 </html>
