@@ -110,7 +110,7 @@ PhantomCheck scans any domain, email address, IP or company name against multipl
 ---
 
 ## License
-​This project is open-source and licensed under the terms of the GNU GPLv3 License. If you fork this project or use its core client-side logic in your own software, your derivative work must also be open-sourced under the same license terms.
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 
