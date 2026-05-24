@@ -4,11 +4,263 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terms of Service — PhantomCheck</title>
+  <meta name="description" content="PhantomCheck Terms of Service. Responsible use policy for AI-powered OSINT reconnaissance.">
   <link rel="stylesheet" href="../assets/css/global.css">
+  <style>
+    body {
+      background: var(--bg, #080e1f);
+      color: var(--text, #e8f4ff);
+      font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .legal-nav {
+      border-bottom: 1px solid rgba(0, 234, 255, 0.1);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .legal-nav-logo {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: 1.1rem;
+      color: #e8f4ff;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+    .legal-nav-logo span { color: #00eaff; }
+    .legal-nav-back {
+      font-size: 0.85rem;
+      color: #7a9cc4;
+      text-decoration: none;
+      border: 1px solid rgba(0, 234, 255, 0.2);
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .legal-nav-back:hover { color: #00eaff; border-color: #00eaff; }
+    .legal-page {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+    .legal-header {
+      margin-bottom: 3rem;
+      border-bottom: 1px solid rgba(0, 234, 255, 0.1);
+      padding-bottom: 2rem;
+    }
+    .legal-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: #00eaff;
+      border: 1px solid rgba(0, 234, 255, 0.3);
+      padding: 0.25rem 0.75rem;
+      border-radius: 3px;
+      margin-bottom: 1rem;
+    }
+    .legal-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 2rem;
+      font-weight: 900;
+      color: #e8f4ff;
+      margin: 0 0 0.5rem;
+      line-height: 1.2;
+    }
+    .legal-meta { font-size: 0.85rem; color: #7a9cc4; }
+    .legal-page h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #00eaff;
+      letter-spacing: 0.1em;
+      margin: 2.5rem 0 0.75rem;
+      text-transform: uppercase;
+    }
+    .legal-page p {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #b8d4ee;
+      margin: 0 0 1rem;
+    }
+    .legal-page ul { margin: 0 0 1rem; padding-left: 1.5rem; }
+    .legal-page ul li {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #b8d4ee;
+      margin-bottom: 0.35rem;
+    }
+    .legal-warning {
+      background: rgba(255, 59, 48, 0.08);
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      border-left: 3px solid #ff3b30;
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+    .legal-warning p { color: #ffb3ae; margin: 0; font-weight: 600; }
+    .legal-info {
+      background: rgba(0, 234, 255, 0.05);
+      border: 1px solid rgba(0, 234, 255, 0.15);
+      border-left: 3px solid #00eaff;
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+    .legal-info p { color: #9dd4e8; margin: 0; }
+    .legal-page a { color: #00eaff; text-decoration: none; }
+    .legal-page a:hover { text-decoration: underline; }
+    .legal-footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(0, 234, 255, 0.1);
+      font-size: 0.85rem;
+      color: #7a9cc4;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .legal-footer a { color: #7a9cc4; }
+    .legal-footer a:hover { color: #00eaff; }
+  </style>
 </head>
-<body style="max-width:680px; margin:0 auto; padding:40px 20px;">
-  <a href="/waitlist.html" style="font-size:0.9rem; color:#7a9cc4;">← Back</a>
-  <h1 style="margin: 32px 0 16px;">Terms of Service</h1>
-  <p style="color:#7a9cc4;">Full terms written in Module 13.</p>
+<body>
+
+  <nav class="legal-nav">
+    <a href="../app.html" class="legal-nav-logo">Phantom<span>Check</span></a>
+    <a href="../app.html" class="legal-nav-back">← Back to App</a>
+  </nav>
+
+  <div class="legal-page">
+
+    <div class="legal-header">
+      <div class="legal-badge">LEGAL</div>
+      <h1 class="legal-title">Terms of Service</h1>
+      <p class="legal-meta">
+        Last updated: May 2025 · PhantomCheck by FutureStack Intelligence · Ilorin, Nigeria
+      </p>
+    </div>
+
+    <div class="legal-warning">
+      <p>
+        ⚠ PhantomCheck is an OSINT tool. You may only scan domains, emails, and IP addresses 
+        that you own or have explicit written permission to test. Scanning systems without 
+        permission may be illegal in your country.
+      </p>
+    </div>
+
+    <h2>1. Acceptance of Terms</h2>
+    <p>
+      By using PhantomCheck ("the tool", "the service"), you agree to these Terms of Service. 
+      If you do not agree, do not use PhantomCheck. These terms apply to all users regardless of location.
+    </p>
+
+    <h2>2. What PhantomCheck Does</h2>
+    <p>
+      PhantomCheck is a browser-based open-source OSINT (Open Source Intelligence) tool that queries 
+      publicly available security databases and APIs. It does not perform active intrusion, exploitation, 
+      or penetration testing. All data returned is sourced from public APIs and open records.
+    </p>
+
+    <div class="legal-info">
+      <p>
+        PhantomCheck runs entirely in your browser. Your API keys and scan results are stored only 
+        in your browser's localStorage — nothing is sent to FutureStack Intelligence servers because 
+        we do not operate any.
+      </p>
+    </div>
+
+    <h2>3. Permitted Use</h2>
+    <p>You may use PhantomCheck only for:</p>
+    <ul>
+      <li>Scanning your own domains, emails, or IP addresses</li>
+      <li>Scanning targets you have explicit written permission to test</li>
+      <li>Security research on systems you are authorized to assess</li>
+      <li>Educational and learning purposes on test environments you control</li>
+      <li>Checking your own digital exposure and breach history</li>
+    </ul>
+
+    <h2>4. Prohibited Use</h2>
+    <p>You may not use PhantomCheck to:</p>
+    <ul>
+      <li>Scan systems, domains, or email addresses without owner permission</li>
+      <li>Gather intelligence for stalking, harassment, or targeted attacks</li>
+      <li>Scan government or military infrastructure (blocked by the tool)</li>
+      <li>Collect data on individuals without their consent</li>
+      <li>Violate any applicable law in your jurisdiction</li>
+      <li>Automate scans beyond the tool's built-in rate limits</li>
+      <li>Reverse-engineer or modify the tool to bypass blocked targets</li>
+    </ul>
+
+    <div class="legal-warning">
+      <p>
+        Unauthorized scanning of computer systems is a criminal offence in most countries including 
+        Nigeria (Cybercrimes Act 2015), the United States (CFAA), and the United Kingdom 
+        (Computer Misuse Act). You are solely responsible for how you use this tool.
+      </p>
+    </div>
+
+    <h2>5. Your API Keys</h2>
+    <p>
+      PhantomCheck uses a Bring Your Own Key (BYOK) model. You supply your own API keys for Claude, 
+      VirusTotal, Shodan, HaveIBeenPwned, SecurityTrails, and GitHub. These keys are stored only in 
+      your browser's localStorage. FutureStack Intelligence has no access to your keys at any time.
+    </p>
+    <p>
+      You are responsible for the usage, billing, and security of your own API keys. Do not use 
+      PhantomCheck on shared or public computers where your keys may be accessible to others.
+    </p>
+
+    <h2>6. No Warranty</h2>
+    <p>
+      PhantomCheck is provided "as is" without warranty of any kind, express or implied. FutureStack 
+      Intelligence does not guarantee the accuracy, completeness, or timeliness of any scan results. 
+      Security data sourced from third-party APIs may be incomplete or outdated.
+    </p>
+    <p>
+      Do not make critical security decisions based solely on PhantomCheck results. Always verify 
+      findings with additional tools and qualified security professionals.
+    </p>
+
+    <h2>7. Limitation of Liability</h2>
+    <p>
+      FutureStack Intelligence and the PhantomCheck contributors shall not be liable for any damages 
+      arising from your use or misuse of this tool, including but not limited to legal consequences 
+      from unauthorized scanning, data loss, API billing charges, or security incidents.
+    </p>
+
+    <h2>8. Open Source</h2>
+    <p>
+      PhantomCheck is released under the MIT License. The source code is available at 
+      <a href="https://github.com/futurestackintel/phantomcheck" target="_blank">
+        github.com/futurestackintel/phantomcheck
+      </a>. 
+      You are free to fork, modify, and redistribute under the terms of the MIT License.
+    </p>
+
+    <h2>9. Changes to These Terms</h2>
+    <p>
+      FutureStack Intelligence reserves the right to update these terms at any time. Continued use 
+      of PhantomCheck after changes are posted constitutes acceptance of the updated terms. The 
+      "Last updated" date at the top of this page will always reflect the most recent revision.
+    </p>
+
+    <h2>10. Contact</h2>
+    <p>
+      Questions about these terms or to report abuse:
+      <a href="mailto:futurestack001@gmail.com?subject=PhantomCheck Terms Inquiry">
+        futurestack001@gmail.com
+      </a>
+    </p>
+
+    <div class="legal-footer">
+      <span>PhantomCheck · <a href="https://github.com/futurestackintel/phantomcheck" target="_blank">MIT License</a></span>
+      <span><a href="privacy.html">Privacy Policy</a> · <a href="../app.html">Back to App</a></span>
+    </div>
+
+  </div>
 </body>
 </html>
