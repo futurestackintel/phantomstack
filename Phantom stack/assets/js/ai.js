@@ -163,3 +163,113 @@ async function runAI(results, inputType, target, mode) {
 
   renderAIOutput(parsed, mode);
 }
+
+// ─── Scan Chat ────────────────────────────────────────────────────────────────
+
+var _chatContext = null;
+var _chatHistory = [];
+var _chatMaxTurns = 6;
+
+function initScanChat(results, inputType, target, mode) {
+  _chatHistory = [];
+
+  var payload = results.map(function(r) {
+    return {
+      source:   r.source,
+      summary:  r.summary,
+      severity: r.severity,
+      score:    r.score || 0
+    };
+  });
+
+  _chatContext = {
+    system: buildChatSystemPrompt(payload, inputType, target, mode),
+    key:    localStorage.getItem('pc_key_claude')
+  };
+
+  renderChatSection();
+}
+
+function buildChatSystemPrompt(payload, inputType, target, mode) {
+  var modeLabel = mode === 'explorer' ? 'plain English (non-technical)'
+    : mode === 'analyst' ? 'professional analyst'
+    : 'technical / penetration tester';
+
+  return 'You are a security assistant answering questions about a completed OSINT scan.\n' +
+    'Scan target: ' + target + '\n' +
+    'Input type: ' + inputType + '\n' +
+    'Output mode: ' + modeLabel + '\n\n' +
+    'Scan findings summary:\n' +
+    JSON.stringify(payload, null, 2) + '\n\n' +
+    'Answer the user\'s questions about this scan concisely and accurately. ' +
+    'Stay grounded in the scan data above. If something is not covered by the scan data, say so. ' +
+    'Do not output JSON. Respond in plain prose matching the output mode tone.';
+}
+
+async function sendChatMessage(userText) {
+  if (!_chatContext) return;
+
+  var key = _chatContext.key;
+  if (!key) {
+    appendChatMessage('assistant', '[!] No Claude API key found. Add it in Settings.');
+    return;
+  }
+
+  _chatHistory.push({ role: 'user', content: userText });
+
+  if (_chatHistory.length > _chatMaxTurns * 2) {
+    _chatHistory = _chatHistory.slice(-(_chatMaxTurns * 2));
+  }
+
+  setChatThinking(true);
+
+  var data;
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type':      'application/json',
+        'x-api-key':         key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model:      'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        system:     _chatContext.system,
+        messages:   _chatHistory
+      })
+    });
+    data = await res.json();
+  } catch (e) {
+    setChatThinking(false);
+    appendChatMessage('assistant', '[!] Request failed — check your connection.');
+    _chatHistory.pop();
+    return;
+  }
+
+  setChatThinking(false);
+
+  if (data.error) {
+    appendChatMessage('assistant', '[!] Claude error: ' + data.error.message);
+    _chatHistory.pop();
+    return;
+  }
+
+  var reply = data.content && data.content[0] && data.content[0].text;
+  if (!reply) {
+    appendChatMessage('assistant', '[!] Empty response.');
+    _chatHistory.pop();
+    return;
+  }
+
+  _chatHistory.push({ role: 'assistant', content: reply });
+  appendChatMessage('assistant', reply);
+}
+
+function clearScanChat() {
+  _chatContext  = null;
+  _chatHistory  = [];
+  var el = document.getElementById('scanChatSection');
+  if (el) el.remove();
+}
