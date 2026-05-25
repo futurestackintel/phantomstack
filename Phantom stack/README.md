@@ -1,7 +1,7 @@
 # PhantomCheck
 > AI-powered OSINT reconnaissance tool. Free. Browser-based. BYOK. Three modes: Explorer, Analyst, Operator.
 
-**Status: Live — [Launch App](https://phantomstack.pages.dev/app.html) · [Join the Waitlist](https://phantomstack.pages.dev/)**
+**Status: Live — [Launch App](https://phantomcheck.pages.dev/app.html) · [Join the Waitlist](https://phantomcheck.pages.dev/)**
 
 Built by [FutureStack Intelligence](https://github.com/futurestackintel) · Ilorin, Nigeria
 
@@ -10,8 +10,8 @@ Built by [FutureStack Intelligence](https://github.com/futurestackintel) · Ilor
 ## Live URLs
 | | |
 |---|---|
-| App | https://phantomstack.pages.dev/app.html |
-| Waitlist | https://phantomstack.pages.dev/ |
+| App | https://phantomcheck.pages.dev/app.html |
+| Waitlist | https://phantomcheck.pages.dev/ |
 
 ---
 
