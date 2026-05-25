@@ -2,7 +2,7 @@ async function runScan(target, type, mode) {
   scanBtnState(true);
   terminalShow();
   terminalSetCmd(target);
-
+  clearScanChat();
   const cached = cacheGet(target, type);
   if (cached) {
     terminalLog('Cache hit — results from ' + cacheAge(cached.ts), 'success');
@@ -11,14 +11,9 @@ async function runScan(target, type, mode) {
     scanBtnState(false);
     return;
   }
-
   var results = [];
-
   if (type === INPUT_TYPES.DOMAIN) {
-    // Stage 1 — DNS first so SPF/DKIM/DMARC can consume its output
     const dnsResult = await tracked('DNS Lookup', apiDns(target));
-
-    // Stage 2 — everything else fires in parallel
     const wave2 = await Promise.all([
       tracked('crt.sh',               apiCrtSh(target)),
       tracked('urlscan.io',            apiUrlscan(target)),
@@ -31,10 +26,8 @@ async function runScan(target, type, mode) {
       tracked('Wayback Machine',       apiWayback(target)),
       tracked('SPF/DKIM/DMARC',        Promise.resolve(analyzeSpfDkimDmarc(dnsResult.raw)))
     ]);
-
     results = [dnsResult].concat(wave2);
   }
-
   if (type === INPUT_TYPES.IP) {
     const wave = await Promise.all([
       tracked('AbuseIPDB',   apiAbuseIPDB(target)),
@@ -44,14 +37,9 @@ async function runScan(target, type, mode) {
     ]);
     results = wave;
   }
-
   if (type === INPUT_TYPES.EMAIL) {
     const domain = target.split('@')[1];
-
-    // Stage 1 — DNS first for the email domain
     const dnsResult = await tracked('DNS Lookup', apiDns(domain));
-
-    // Stage 2 — everything else in parallel
     const wave2 = await Promise.all([
       tracked('Africa Regional Check', apiAfricaCheck(domain)),
       tracked('HaveIBeenPwned',        apiHIBP(target)),
@@ -61,10 +49,8 @@ async function runScan(target, type, mode) {
       tracked('Wayback Machine',       apiWayback(domain)),
       tracked('SPF/DKIM/DMARC',        Promise.resolve(analyzeSpfDkimDmarc(dnsResult.raw)))
     ]);
-
     results = [dnsResult].concat(wave2);
   }
-
   cacheSet(target, type, results);
   presentResults(results, target, mode);
   scanBtnState(false);
@@ -93,12 +79,14 @@ function presentResults(results, target, mode) {
     : totalScore >= 40
     ? 'Moderate exposure detected. Some items need attention.'
     : 'Low exposure detected. No critical findings.';
-
   terminalDone();
   gaugeAnimate(totalScore);
   setRiskMeta(target, description);
   renderApiCards(results);
-  runAI(results, detectInputType(target), target, mode);
+  runAI(results, detectInputType(target), target, mode)
+    .then(function() {
+      initScanChat(results, detectInputType(target), target, mode);
+    });
 }
 
 function delay(ms) {
