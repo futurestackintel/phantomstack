@@ -232,6 +232,11 @@
           <td>To remember Explorer, Analyst, or Operator preference</td>
         </tr>
         <tr>
+          <td><code>pc_chat_history</code></td>
+          <td>In-memory only — not stored</td>
+          <td>Chat history exists only while the page is open and is cleared on every new scan</td>
+       </tr>
+        <tr>
           <td><code>pc_key_claude</code></td>
           <td>Your Claude API key</td>
           <td>So you do not have to re-enter it every session</td>
@@ -285,8 +290,12 @@
     </p>
     <ul>
       <li>
-        <strong>Anthropic (Claude)</strong> — AI interpretation of scan results.
-        <a href="https://www.anthropic.com/privacy" target="_blank">Privacy policy →</a>
+  <strong>Anthropic (Claude)</strong> — AI interpretation of scan results and 
+  the scan chat feature. When you use scan chat, your questions and a summary 
+  of scan findings (source, summary, severity, score — no raw data) are sent 
+  directly from your browser to Anthropic's API using your own Claude key. 
+  PhantomCheck does not see or log this traffic.
+  <a href="https://www.anthropic.com/privacy" target="_blank">Privacy policy →</a>
       </li>
       <li>
         <strong>VirusTotal</strong> — malware and reputation data.
