@@ -35,7 +35,7 @@ After every scan, a **Scan Chat** feature appears below the report — ask Claud
 ---
 
 ## How to Use
-1. Open the app at `https://phantomstack.pages.dev/app.html`
+1. Open the app at `https://phantomcheck.pages.dev/app.html`
 2. Click the settings icon and paste in your API keys
 3. Enter a domain, email, IP or company name
 4. Select a mode — Explorer, Analyst or Operator
