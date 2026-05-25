@@ -263,3 +263,128 @@ function renderAIOutput(parsed, mode) {
   html += '</div>';
   renderModeOutput(html);
 }
+
+// ─── Scan Chat UI ─────────────────────────────────────────────────────────────
+
+function renderChatSection() {
+  var existing = document.getElementById('scanChatSection');
+  if (existing) existing.remove();
+
+  var section = document.createElement('div');
+  section.id        = 'scanChatSection';
+  section.className = 'scan-chat-section';
+
+  section.innerHTML =
+    '<button class="scan-chat-toggle" id="scanChatToggle" onclick="toggleChatSection()">' +
+      '<span class="scan-chat-toggle-label">' +
+        '<span class="scan-chat-icon">💬</span>' +
+        'Ask about this scan' +
+      '</span>' +
+      '<span class="scan-chat-chevron" id="scanChatChevron">▼</span>' +
+    '</button>' +
+
+    '<div class="scan-chat-body hidden" id="scanChatBody">' +
+      '<div class="scan-chat-messages" id="scanChatMessages">' +
+        '<div class="scan-chat-msg assistant">' +
+          '<span class="scan-chat-msg-text">' +
+            'Scan loaded. Ask me anything about these results.' +
+          '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="scan-chat-thinking hidden" id="scanChatThinking">' +
+        '<span class="scan-chat-thinking-dot"></span>' +
+        '<span class="scan-chat-thinking-dot"></span>' +
+        '<span class="scan-chat-thinking-dot"></span>' +
+      '</div>' +
+      '<div class="scan-chat-input-row">' +
+        '<input ' +
+          'type="text" ' +
+          'id="scanChatInput" ' +
+          'class="scan-chat-input" ' +
+          'placeholder="e.g. What is the biggest risk here?" ' +
+          'autocomplete="off" ' +
+          'spellcheck="false" ' +
+          'onkeydown="handleChatKey(event)"' +
+        '>' +
+        '<button class="scan-chat-send" id="scanChatSend" onclick="submitChatMessage()">' +
+          'Send' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+
+  var anchor = document.getElementById('modeOutput');
+  if (anchor && anchor.parentNode) {
+    anchor.parentNode.insertBefore(section, anchor.nextSibling);
+  }
+}
+
+function toggleChatSection() {
+  var body    = document.getElementById('scanChatBody');
+  var chevron = document.getElementById('scanChatChevron');
+  if (!body) return;
+
+  var isHidden = body.classList.toggle('hidden');
+  chevron.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+
+  if (!isHidden) {
+    var input = document.getElementById('scanChatInput');
+    if (input) input.focus();
+  }
+}
+
+function appendChatMessage(role, text) {
+  var container = document.getElementById('scanChatMessages');
+  if (!container) return;
+
+  var msg  = document.createElement('div');
+  msg.className = 'scan-chat-msg ' + role;
+
+  var span = document.createElement('span');
+  span.className   = 'scan-chat-msg-text';
+  span.textContent = text;
+
+  msg.appendChild(span);
+  container.appendChild(msg);
+  container.scrollTop = container.scrollHeight;
+}
+
+function setChatThinking(active) {
+  var thinking = document.getElementById('scanChatThinking');
+  var send     = document.getElementById('scanChatSend');
+  var input    = document.getElementById('scanChatInput');
+  if (!thinking) return;
+
+  if (active) {
+    thinking.classList.remove('hidden');
+    if (send)  send.disabled  = true;
+    if (input) input.disabled = true;
+    var container = document.getElementById('scanChatMessages');
+    if (container) container.scrollTop = container.scrollHeight;
+  } else {
+    thinking.classList.add('hidden');
+    if (send)  send.disabled  = false;
+    if (input) {
+      input.disabled = false;
+      input.focus();
+    }
+  }
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    submitChatMessage();
+  }
+}
+
+function submitChatMessage() {
+  var input = document.getElementById('scanChatInput');
+  if (!input) return;
+
+  var text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  appendChatMessage('user', text);
+  sendChatMessage(text);
+}
