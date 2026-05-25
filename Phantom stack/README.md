@@ -22,6 +22,8 @@ PhantomCheck scans any domain, email address, IP or company name against multipl
 - **Analyst Mode** — Structured professional security report. For IT managers and founders.
 - **Operator Mode** — Raw technical data with CVE references. For penetration testers and researchers.
 
+After every scan, a **Scan Chat** feature appears below the report — ask Claude any question about the results in plain language and get a direct answer grounded in the scan data.
+
 ---
 
 ## Supported Targets
@@ -38,6 +40,7 @@ PhantomCheck scans any domain, email address, IP or company name against multipl
 3. Enter a domain, email, IP or company name
 4. Select a mode — Explorer, Analyst or Operator
 5. Hit Scan
+6. When the report loads, click **Ask about this scan** to open the chat
 
 **Claude API key is required.** All other keys are optional but unlock more data.
 
@@ -57,7 +60,7 @@ PhantomCheck scans any domain, email address, IP or company name against multipl
 ### BYOK — Bring Your Own Key
 | API | What It Checks | Get Key |
 |-----|---------------|---------|
-| Claude AI | Interprets all results, generates report | [console.anthropic.com](https://console.anthropic.com) |
+| Claude AI | Interprets all results, generates report, powers scan chat | [console.anthropic.com](https://console.anthropic.com) |
 | VirusTotal | Malware and threat detection | [virustotal.com](https://virustotal.com) |
 | Shodan | Open ports and exposed services | [shodan.io](https://shodan.io) |
 | HaveIBeenPwned | Email breach history | [haveibeenpwned.com](https://haveibeenpwned.com) |
@@ -71,12 +74,13 @@ PhantomCheck scans any domain, email address, IP or company name against multipl
 - No backend. No database. No accounts.
 - Your keys and scan data never touch our servers
 - All API calls go directly from your browser to the respective APIs
+- Scan chat history exists in memory only — cleared on every new scan, never stored
 
 ---
 
 ## Tech Stack
 - HTML5 / CSS3 / Vanilla JavaScript — zero frameworks
-- Claude AI (Anthropic) — three-mode report generation
+- Claude AI (Anthropic) — three-mode report generation and scan chat
 - Cloudflare Pages — hosting and deployment
 - MIT License
 
@@ -95,6 +99,7 @@ PhantomCheck scans any domain, email address, IP or company name against multipl
 | 8 — Three Output Modes | ✅ Complete |
 | 9 — Export and Share | ✅ Complete |
 | 10 — Caching and Performance | ✅ Complete |
+| 11 — Scan Chat (Ask Claude about results) | ✅ Complete |
 
 ---
 
