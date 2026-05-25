@@ -264,7 +264,7 @@ function renderAIOutput(parsed, mode) {
   renderModeOutput(html);
 }
 
-// ─── Scan Chat UI ─────────────────────────────────────────────────────────────
+// scan Chat UI
 
 function renderChatSection() {
   var existing = document.getElementById('scanChatSection');
@@ -291,6 +291,14 @@ function renderChatSection() {
           '</span>' +
         '</div>' +
       '</div>' +
+
+      '<div class="scan-chat-suggestions" id="scanChatSuggestions">' +
+        '<button class="scan-chat-suggestion" onclick="useSuggestion(this)">What is the biggest risk here?</button>' +
+        '<button class="scan-chat-suggestion" onclick="useSuggestion(this)">Is this target safe?</button>' +
+        '<button class="scan-chat-suggestion" onclick="useSuggestion(this)">What should I do first?</button>' +
+        '<button class="scan-chat-suggestion" onclick="useSuggestion(this)">Explain the findings in simple terms</button>' +
+      '</div>' +
+
       '<div class="scan-chat-thinking hidden" id="scanChatThinking">' +
         '<span class="scan-chat-thinking-dot"></span>' +
         '<span class="scan-chat-thinking-dot"></span>' +
@@ -385,6 +393,14 @@ function submitChatMessage() {
   if (!text) return;
 
   input.value = '';
+  appendChatMessage('user', text);
+  sendChatMessage(text);
+}
+
+function useSuggestion(btn) {
+  var text = btn.textContent.trim();
+  var suggestions = document.getElementById('scanChatSuggestions');
+  if (suggestions) suggestions.remove();
   appendChatMessage('user', text);
   sendChatMessage(text);
 }
