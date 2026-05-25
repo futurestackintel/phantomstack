@@ -1435,3 +1435,29 @@
     padding: var(--space-sm) var(--space-md);
   }
 }
+
+.scan-chat-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding: 0 var(--space-lg) var(--space-md);
+}
+
+.scan-chat-suggestion {
+  background: none;
+  border: 1px solid var(--cyan-dim);
+  color: var(--cyan-dim);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.scan-chat-suggestion:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: var(--cyan-glow);
+}
