@@ -264,9 +264,40 @@ function renderAIOutput(parsed, mode) {
   renderModeOutput(html);
 }
 
+function buildChatSuggestions(mode) {
+  var suggestions = {
+    explorer: [
+      'Is this target safe to use?',
+      'What is the biggest risk here?',
+      'What should I do first?',
+      'Explain the findings in simple terms'
+    ],
+    analyst: [
+      'What is the overall risk posture?',
+      'Which finding needs immediate remediation?',
+      'Are there any compliance implications?',
+      'Summarise the threat surface'
+    ],
+    operator: [
+      'What are the most exploitable vectors?',
+      'Any CVEs I should prioritise?',
+      'What would an attacker do first?',
+      'Are there any IOCs worth pivoting on?'
+    ]
+  };
+
+  var list = suggestions[mode] || suggestions.explorer;
+
+  return list.map(function(text) {
+    return '<button class="scan-chat-suggestion" onclick="useSuggestion(this)">' +
+      sanitise(text) +
+    '</button>';
+  }).join('');
+}
+
 // scan Chat UI
 
-function renderChatSection() {
+function renderChatSection(mode) {
   var existing = document.getElementById('scanChatSection');
   if (existing) existing.remove();
 
@@ -293,10 +324,7 @@ function renderChatSection() {
       '</div>' +
 
       '<div class="scan-chat-suggestions" id="scanChatSuggestions">' +
-        '<button class="scan-chat-suggestion" onclick="useSuggestion(this)">What is the biggest risk here?</button>' +
-        '<button class="scan-chat-suggestion" onclick="useSuggestion(this)">Is this target safe?</button>' +
-        '<button class="scan-chat-suggestion" onclick="useSuggestion(this)">What should I do first?</button>' +
-        '<button class="scan-chat-suggestion" onclick="useSuggestion(this)">Explain the findings in simple terms</button>' +
+        buildChatSuggestions(mode) +
       '</div>' +
 
       '<div class="scan-chat-thinking hidden" id="scanChatThinking">' +
