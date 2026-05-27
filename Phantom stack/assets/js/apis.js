@@ -384,7 +384,11 @@ async function apiAfricaCheck(target) {
         detected_country:  detectedCountry,
         matched_provider:  matchedProvider ? matchedProvider.name : null,
         provider_country:  matchedProvider ? matchedProvider.country : null,
-        detection_method:  matchedProvider ? (ips.length ? 'ip_prefix' : 'nameserver') : null,
+        detection_method: matchedProvider
+  ? (ips.some(function(ip) {
+      return matchedProvider.prefixes.some(function(p) { return ip.startsWith(p); });
+    }) ? 'ip_prefix' : 'nameserver')
+  : null,
         generic_african_ip: isGenericAfrican,
         ips,
         nameservers: nsNames
