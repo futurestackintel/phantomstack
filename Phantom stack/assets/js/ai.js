@@ -187,7 +187,7 @@ function initScanChat(results, inputType, target, mode) {
     key:    localStorage.getItem('pc_key_claude')
   };
 
-  renderChatSection();
+  renderChatSection(mode);
 }
 
 function buildChatSystemPrompt(payload, inputType, target, mode) {
