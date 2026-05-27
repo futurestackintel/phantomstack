@@ -141,48 +141,268 @@ async function apiDns(target) {
 }
 
 async function apiAfricaCheck(target) {
-  const source   = 'Africa Regional Check';
-  const isNg     = target.endsWith('.ng') || target.endsWith('.com.ng');
-  const isZa     = target.endsWith('.co.za') || target.endsWith('.za');
-  const findings = [];
-  let score      = 0;
+  var source = 'Africa Regional Check';
 
-  if (isNg) findings.push('Nigerian domain (.ng) — checking regional exposure');
-  if (isZa) findings.push('South African domain (.za) — checking regional exposure');
+  // --- TLD detection ---
+  var tldMap = {
+  '.ng':     'Nigeria',       '.com.ng': 'Nigeria',   '.edu.ng': 'Nigeria',
+  '.gov.ng': 'Nigeria',       '.org.ng': 'Nigeria',
+  '.za':     'South Africa',  '.co.za':  'South Africa', '.org.za': 'South Africa',
+  '.gov.za': 'South Africa',  '.ac.za':  'South Africa',
+  '.gh':     'Ghana',         '.com.gh': 'Ghana',
+  '.ke':     'Kenya',         '.co.ke':  'Kenya',
+  '.et':     'Ethiopia',
+  '.cm':     'Cameroon',
+  '.ci':     'Côte d\'Ivoire',
+  '.sn':     'Senegal',
+  '.tz':     'Tanzania',      '.co.tz':  'Tanzania',
+  '.ug':     'Uganda',        '.co.ug':  'Uganda',
+  '.rw':     'Rwanda',
+  '.bj':     'Benin',
+  '.zw':     'Zimbabwe',      '.co.zw':  'Zimbabwe',
+  '.zm':     'Zambia',
+  '.mz':     'Mozambique',
+  '.ma':     'Morocco',
+  '.dz':     'Algeria',
+  '.tn':     'Tunisia',
+  '.eg':     'Egypt',
+  '.sd':     'Sudan'
+};
+
+  var detectedCountry = null;
+  var tldEntries = Object.entries(tldMap);
+  for (var i = 0; i < tldEntries.length; i++) {
+    if (target.endsWith(tldEntries[i][0])) {
+      detectedCountry = tldEntries[i][1];
+      break;
+    }
+  }
+
+  // --- Provider fingerprint table ---
+  // Each entry: { name, country, prefixes[], nameserverPatterns[] }
+  var providers = [
+    {
+      name: 'MTN Nigeria',
+      country: 'Nigeria',
+      prefixes: ['197.210.', '41.206.', '41.215.', '196.220.'],
+      nameserverPatterns: ['mtn.com.ng', 'mtnnigeria.net']
+    },
+    {
+      name: 'Airtel Nigeria',
+      country: 'Nigeria',
+      prefixes: ['197.156.', '41.184.', '41.190.', '41.216.'],
+      nameserverPatterns: ['airtel.com.ng', 'ng.airtel.com']
+    },
+    {
+      name: 'Globacom (Glo)',
+      country: 'Nigeria',
+      prefixes: ['41.73.', '41.76.', '41.222.', '197.242.'],
+      nameserverPatterns: ['gloworld.com', 'glo.com.ng']
+    },
+    {
+      name: 'MainOne',
+      country: 'Nigeria',
+      prefixes: ['41.75.', '196.49.', '197.149.', '102.220.'],
+      nameserverPatterns: ['mainone.net', 'mdx.net']
+    },
+    {
+      name: 'Rack Centre (Lagos DC)',
+      country: 'Nigeria',
+      prefixes: ['196.46.', '41.222.216.'],
+      nameserverPatterns: ['rackcentre.com.ng']
+    },
+    {
+      name: 'Spectranet Nigeria',
+      country: 'Nigeria',
+      prefixes: ['41.218.', '197.253.'],
+      nameserverPatterns: ['spectranet.com.ng']
+    },
+    {
+      name: 'Smile Communications',
+      country: 'Nigeria',
+      prefixes: ['197.232.', '41.222.208.'],
+      nameserverPatterns: ['smile.com.ng', 'smilecoms.com']
+    },
+    {
+      name: 'ipNX Nigeria',
+      country: 'Nigeria',
+      prefixes: ['197.211.', '41.222.4.'],
+      nameserverPatterns: ['ipnx.com.ng']
+    },
+    {
+      name: 'Layer3 (Nigeria)',
+      country: 'Nigeria',
+      prefixes: ['197.255.', '196.207.'],
+      nameserverPatterns: ['layer3.ng', 'layer3networks.com']
+    },
+    {
+      name: 'Safaricom',
+      country: 'Kenya',
+      prefixes: ['196.201.', '196.200.', '105.163.'],
+      nameserverPatterns: ['safaricom.co.ke', 'safaricom.com']
+    },
+    {
+      name: 'Airtel Kenya',
+      country: 'Kenya',
+      prefixes: ['197.136.', '41.204.'],
+      nameserverPatterns: ['ke.airtel.com', 'airtelkenya.com']
+    },
+    {
+      name: 'MTN Ghana',
+      country: 'Ghana',
+      prefixes: ['154.160.', '41.189.'],
+      nameserverPatterns: ['mtn.com.gh', 'mtnghana.com']
+    },
+    {
+      name: 'Vodacom South Africa',
+      country: 'South Africa',
+      prefixes: ['196.36.', '41.13.', '41.160.'],
+      nameserverPatterns: ['vodacom.co.za', 'vodacom.com']
+    },
+    {
+      name: 'MTN South Africa',
+      country: 'South Africa',
+      prefixes: ['196.11.', '196.28.', '41.0.'],
+      nameserverPatterns: ['mtn.co.za', 'mtnns.net']
+    },
+    {
+      name: 'Liquid Intelligent Technologies',
+      country: 'Pan-Africa',
+      prefixes: ['196.216.', '41.222.96.', '196.10.', '102.215.'],
+      nameserverPatterns: ['liquidtelecom.com', 'liquidhome.co.ke', 'utande.co.zw']
+    },
+    {
+      name: 'WIOCC',
+      country: 'Pan-Africa',
+      prefixes: ['196.46.192.', '196.223.', '41.75.128.'],
+      nameserverPatterns: ['wiocc.net', 'openaccess.net']
+    },
+    {
+      name: 'Seacom',
+      country: 'Pan-Africa',
+      prefixes: ['196.60.', '196.62.', '102.64.'],
+      nameserverPatterns: ['seacom.com', 'seacom.mu']
+    }
+  ];
+
+  var findings   = [];
+  var matchedProvider = null;
+  var score      = 0;
+
+  if (detectedCountry) {
+    findings.push('African TLD detected — ' + detectedCountry);
+    score += 5;
+  }
 
   try {
-    const res  = await fetch(
+    var res = await fetch(
       'https://dns.google/resolve?name=' + encodeURIComponent(target) + '&type=A',
       { signal: AbortSignal.timeout(8000) }
     );
-    const data = await res.json();
-    const ips  = data.Answer ? data.Answer.map(function(a) { return a.data; }) : [];
+    var data = await res.json();
+    var ips  = data.Answer ? data.Answer.map(function(a) { return a.data; }) : [];
 
-    if (ips.length) findings.push('Resolves to: ' + ips.join(', '));
-
-    const africanRanges = ['41.', '102.', '105.', '196.', '197.', '154.'];
-    const africanIp     = ips.some(function(ip) {
-      return africanRanges.some(function(r) { return ip.startsWith(r); });
-    });
-
-    if (africanIp) {
-      findings.push('Hosted on African IP range — verify datacenter security posture');
-      score += 5;
+    if (ips.length) {
+      findings.push('Resolves to: ' + ips.join(', '));
     }
 
-    if (isNg || isZa) score += 5;
+    // NS lookup for nameserver-based fingerprinting
+    var nsRes  = await fetch(
+      'https://dns.google/resolve?name=' + encodeURIComponent(target) + '&type=NS',
+      { signal: AbortSignal.timeout(6000) }
+    );
+    var nsData  = await nsRes.json();
+    var nsNames = nsData.Answer
+      ? nsData.Answer.map(function(a) { return (a.data || '').toLowerCase().replace(/\.$/, ''); })
+      : [];
+
+    // Provider matching — IP prefix first, then nameserver fallback
+    for (var p = 0; p < providers.length; p++) {
+      var provider = providers[p];
+      var ipMatch  = ips.some(function(ip) {
+        return provider.prefixes.some(function(prefix) {
+          return ip.startsWith(prefix);
+        });
+      });
+      var nsMatch  = nsNames.some(function(ns) {
+        return provider.nameserverPatterns.some(function(pattern) {
+          return ns.includes(pattern);
+        });
+      });
+      if (ipMatch || nsMatch) {
+        matchedProvider = provider;
+        findings.push(
+          'Hosted on ' + provider.name +
+          (provider.country !== 'Pan-Africa' ? ' (' + provider.country + ')' : ' (Pan-African backbone)') +
+          (nsMatch && !ipMatch ? ' — detected via nameserver' : ' — detected via IP range')
+        );
+        break;
+      }
+    }
+
+    // Generic African IP range check (fallback when no provider matched)
+    var genericAfricanPrefixes = [
+      '41.', '102.', '105.', '154.', '196.', '197.'
+    ];
+    var isGenericAfrican = !matchedProvider && ips.some(function(ip) {
+      return genericAfricanPrefixes.some(function(prefix) {
+        return ip.startsWith(prefix);
+      });
+    });
+
+    if (isGenericAfrican) {
+      findings.push('Hosted on African IP range — provider not identified, verify datacenter security posture');
+      score += 5;
+    } else if (matchedProvider) {
+      // named provider match — no score penalty, just informational
+      score += 2;
+    }
+
+    if (detectedCountry) score += 3;
+
+    var severity;
+    if (isGenericAfrican) {
+      severity = 'warning';
+    } else {
+      severity = 'safe';
+    }
+
+    var summaryParts = [];
+    if (detectedCountry) summaryParts.push(detectedCountry + ' TLD');
+    if (matchedProvider) summaryParts.push(matchedProvider.name);
+    else if (isGenericAfrican) summaryParts.push('unidentified African IP range');
 
     return {
       source,
-      severity: score > 5 ? 'warning' : 'safe',
-      summary:  (isNg || isZa)
-        ? 'Regional TLD detected — ' + findings.length + ' findings'
-        : 'Non-African TLD — basic regional check only',
-      raw: { target, findings, african_ip: africanIp, ips },
+      severity,
+      summary: summaryParts.length
+        ? summaryParts.join(' · ') + ' — ' + findings.length + ' finding(s)'
+        : 'Non-African target — no regional findings',
+      raw: {
+        target,
+        findings,
+        detected_country:  detectedCountry,
+        matched_provider:  matchedProvider ? matchedProvider.name : null,
+        provider_country:  matchedProvider ? matchedProvider.country : null,
+        detection_method:  matchedProvider ? (ips.length ? 'ip_prefix' : 'nameserver') : null,
+        generic_african_ip: isGenericAfrican,
+        ips,
+        nameservers: nsNames
+      },
       score
     };
+
   } catch (e) {
-    return { source, severity: 'safe', summary: 'Unavailable', error: e.message, score: 0 };
+    return {
+      source,
+      severity: 'safe',
+      summary:  detectedCountry
+        ? detectedCountry + ' TLD detected — IP lookup failed'
+        : 'Unavailable',
+      error: e.message,
+      raw:   { target, findings, detected_country: detectedCountry },
+      score
+    };
   }
 }
 
