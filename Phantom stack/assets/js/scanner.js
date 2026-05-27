@@ -70,15 +70,24 @@ function presentResults(results, target, mode) {
   const validResults = results.filter(function(r) {
     return !r.error && r.severity !== undefined;
   });
-  const totalScore = Math.min(
-    validResults.reduce(function(sum, r) { return sum + (r.score || 0); }, 0),
-    100
-  );
+
+  // Weight scores by severity
+  const weightedScore = validResults.reduce(function(sum, r) {
+    var s = r.score || 0;
+    var weight = r.severity === 'critical' ? 1.0
+      : r.severity === 'warning'           ? 0.6
+      : 0.2;
+    return sum + (s * weight);
+  }, 0);
+
+  const totalScore = Math.min(Math.round(weightedScore), 100);
+
   const description = totalScore >= 70
     ? 'Significant exposure detected. Review findings below.'
     : totalScore >= 40
     ? 'Moderate exposure detected. Some items need attention.'
     : 'Low exposure detected. No critical findings.';
+
   terminalDone();
   gaugeAnimate(totalScore);
   setRiskMeta(target, description);
