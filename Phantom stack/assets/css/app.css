@@ -1,5 +1,5 @@
 /* ============================================
-   PHANTOMCHECK — APP STYLES (Revised MVP)
+   PHANTOMCHECK — APP STYLES
    ============================================ */
 
 /* ---- Navigation ---- */
@@ -1460,4 +1460,20 @@
   border-color: var(--cyan);
   color: var(--cyan);
   background: var(--cyan-glow);
+}
+
+.btn-demo {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-bottom: 0.75rem;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.btn-demo:hover {
+  opacity: 1;
 }
