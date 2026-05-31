@@ -127,7 +127,6 @@
   <script>
     // ============================================
     // WAITLIST FORM LOGIC
-    // Simple, no dependencies, explained line by line
     // ============================================
 
     const form = document.getElementById('waitlistForm');
@@ -136,8 +135,6 @@
     const successState = document.getElementById('successState');
     const signupCount = document.getElementById('signupCount');
 
-    // Animate the counter up slowly to create social proof feeling
-    // Starts at 247, counts up to a random number between 248-312
     function animateCounter() {
       const start = 247;
       const end = start + Math.floor(Math.random() * 65) + 1;
@@ -155,13 +152,12 @@
 
     // Form submission handler
     form.addEventListener('submit', function(event) {
-      // Prevent the browser's default form submission (which would reload the page)
+      // Prevent
       event.preventDefault();
 
-      // HONEYPOT CHECK — if the hidden 'website' field has any value, this is a bot
+      // HONEYPOT CHECK
       const honeypot = form.querySelector('input[name="website"]');
       if (honeypot && honeypot.value !== '') {
-        // Silently do nothing — bots don't know they failed
         return;
       }
 
@@ -174,24 +170,30 @@
         setTimeout(() => {
           emailInput.style.borderColor = '';
           emailInput.placeholder = 'your@email.com';
-        }, 2000); // reset after 2 seconds
+        }, 2000); 
         return;
       }
 
-      // Store in localStorage so we know they already signed up
-      // This prevents the same person signing up multiple times
       localStorage.setItem('phantomcheck_waitlist', email);
       localStorage.setItem('phantomcheck_waitlist_date', Date.now());
 
-      // Hide form, show success message
-      formContainer.style.display = 'none';
-      successState.classList.add('visible');
+      // Send email to Web3Forms
+fetch('https://api.web3forms.com/submit', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    access_key: '97c0ae21-ffde-4d5d-875a-648f00e59607',
+    email: email,
+    subject: 'New PhantomCheck Waitlist Signup'
+  })
+});
 
-      // In a real deployment you would also send this to Netlify Forms
-      // or a service like ConvertKit here. We'll add that in Module 15.
+// Hide form, show success message
+formContainer.style.display = 'none';
+successState.classList.add('visible');
+
     });
 
-    // If user already signed up before, show success immediately
     if (localStorage.getItem('phantomcheck_waitlist')) {
       formContainer.style.display = 'none';
       successState.classList.add('visible');
