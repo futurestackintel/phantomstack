@@ -276,3 +276,167 @@ function clearScanChat() {
   var el = document.getElementById('scanChatSection');
   if (el) el.remove();
 }
+
+// ─── Demo Mode ────────────────────────────────────────────────────────────────
+
+function runDemo(mode) {
+  const demos = {
+    explorer: {
+      verdict: "This domain has some serious security gaps that could put visitors and the business at risk.",
+      risk_level: "high",
+      findings: [
+        {
+          title: "Email Can Be Faked By Anyone",
+          explanation: "This domain has no DMARC protection, meaning criminals can send emails pretending to be from this business. Your customers could receive convincing scam emails that look like they came from you.",
+          source: "SPF / DKIM / DMARC",
+          severity: "critical"
+        },
+        {
+          title: "Found on 3 Breach Databases",
+          explanation: "Staff email addresses from this domain appeared in three separate data breaches. This means passwords used at work may already be in criminal hands.",
+          source: "VirusTotal",
+          severity: "critical"
+        },
+        {
+          title: "Domain Registered in 2019 — Consistent History",
+          explanation: "The domain has been active for over five years with no suspicious ownership changes. This is a good sign for legitimacy.",
+          source: "Whois/RDAP",
+          severity: "safe"
+        },
+        {
+          title: "Hosted on African Infrastructure",
+          explanation: "The website is hosted within Nigeria (AS37282 — Rack Centre, Lagos). This is normal for local businesses but means international DDoS protection may be limited.",
+          source: "Africa Regional Check",
+          severity: "warning"
+        }
+      ],
+      action_items: [
+        "Set up DMARC on your domain immediately — your IT provider can do this in under an hour",
+        "Ask all staff to change passwords for any accounts linked to this domain",
+        "Enable two-factor authentication on your email platform"
+      ],
+      upsell: "dark_web"
+    },
+
+    analyst: {
+      executive_summary: "The target domain presents a moderate-to-high risk profile. Critical email authentication failures create significant brand impersonation exposure, while credential leakage across three known breach datasets suggests active threat actor interest. Infrastructure configuration is regionally appropriate but lacks enterprise-grade DDoS mitigation.",
+      risk_level: "high",
+      risk_score_rationale: "Score driven primarily by absent DMARC policy and confirmed credential exposure in breach datasets.",
+      findings: [
+        {
+          title: "Missing DMARC Policy — Email Spoofing Vulnerability",
+          detail: "SPF record exists but DMARC (Domain-based Message Authentication, Reporting and Conformance) is absent. Without a DMARC policy, threat actors can pass SPF/DKIM checks on spoofed messages, enabling convincing BEC (Business Email Compromise) campaigns targeting clients and partners.",
+          source: "SPF / DKIM / DMARC",
+          severity: "critical",
+          recommendation: "Publish a DMARC TXT record at _dmarc.[domain] with at minimum p=quarantine. Progress to p=reject after monitoring reporting data for 30 days."
+        },
+        {
+          title: "Credential Exposure Across Three Breach Datasets",
+          detail: "Domain-linked addresses confirmed in three breach compilations including a 2023 Nigerian fintech data leak. Exposed data includes plaintext passwords suggesting weak hashing at source.",
+          source: "VirusTotal",
+          severity: "critical",
+          recommendation: "Force password resets for all affected accounts. Implement SSO with hardware MFA where possible. Cross-reference exposed credentials against internal systems."
+        },
+        {
+          title: "Nigerian Hosting Infrastructure — AS37282 Rack Centre Lagos",
+          detail: "IP resolves to Rack Centre Lagos, a Tier III facility. Routing confirms Nigerian peering. No WAF or CDN layer detected in front of origin.",
+          source: "Africa Regional Check",
+          severity: "warning",
+          recommendation: "Place Cloudflare or equivalent CDN/WAF in front of origin to mask infrastructure and absorb volumetric attacks."
+        }
+      ],
+      threat_surface: [
+        "Email spoofing via absent DMARC",
+        "Credential stuffing from breach exposure",
+        "Unprotected origin IP exposure"
+      ],
+      compliance_flags: [
+        "NDPC (Nigeria Data Protection) — breach notification obligation likely triggered",
+        "GDPR — if any EU data subjects are customers"
+      ],
+      upsell: "dark_web"
+    },
+
+    operator: {
+      assessment: "Target presents exploitable email authentication failure, confirmed credential exposure, and unshielded origin infrastructure — moderate priority for further enumeration.",
+      risk_level: "high",
+      findings: [
+        {
+          title: "DMARC Absent — BEC/Phishing Infrastructure Ready",
+          detail: "No DMARC record at _dmarc.[target]. SPF ~all softfail in place. DKIM selector found via crt.sh enumeration but key rotation unconfirmed. Full spoofing chain viable for targeted phishing.",
+          source: "SPF / DKIM / DMARC",
+          severity: "critical",
+          cve_refs: [],
+          iocs: ["_dmarc.[target] — no record", "v=spf1 include:zoho.com ~all"],
+          exploit_notes: "Craft lookalike sending infrastructure. SPF softfail unlikely to trigger spam filters on configured mail clients. High success probability for executive impersonation."
+        },
+        {
+          title: "Credential Corpus — Three Breach Datasets",
+          detail: "6 unique addresses confirmed across breach data. One plaintext password match suggesting MD5 or unsalted SHA1 storage at breach origin. Recommend credential stuffing against identified SaaS touchpoints.",
+          source: "VirusTotal",
+          severity: "critical",
+          cve_refs: [],
+          iocs: ["admin@[target]", "info@[target]"],
+          exploit_notes: "Cross-reference against LinkedIn for role mapping. Prioritise C-suite and finance addresses for BEC chain."
+        },
+        {
+          title: "Origin IP Exposed — No CDN Layer",
+          detail: "A record resolves directly to 197.211.x.x (Rack Centre Lagos AS37282). No Cloudflare or Akamai fingerprint in headers. Server: nginx/1.18.0 — check for known CVEs on this minor version.",
+          source: "Africa Regional Check",
+          severity: "warning",
+          cve_refs: ["CVE-2021-23017"],
+          iocs: ["197.211.x.x", "nginx/1.18.0"],
+          exploit_notes: "Direct origin exposure enables volumetric attack bypass and targeted service enumeration. Shodan confirms port 8080 open."
+        }
+      ],
+      attack_vectors: [
+        "Email spoofing — DMARC absent",
+        "Credential stuffing — breach corpus available",
+        "Direct origin attack — no CDN/WAF layer",
+        "nginx version fingerprinting"
+      ],
+      upsell: "ethical_hacking"
+    }
+  };
+
+  // Run the terminal animation first, then show demo results
+  const target = 'demo-target.ng';
+  terminalShow();
+  terminalSetCmd(target);
+
+  const steps = [
+    '[*] Initialising PhantomCheck scan engine...',
+    '[+] DNS records resolved — A, MX, TXT, NS enumerated',
+    '[+] WHOIS/RDAP lookup complete — domain age confirmed',
+    '[+] crt.sh certificate transparency scan complete — 4 subdomains found',
+    '[+] SPF/DKIM/DMARC analysis complete — issues detected',
+    '[~] VirusTotal reputation check — flagged in 3 datasets',
+    '[+] Africa Regional Check — Nigerian infrastructure confirmed',
+    '[+] IPinfo geolocation complete — Lagos, Nigeria',
+    '[+] Wayback Machine — 47 historical snapshots found',
+    '[*] Running AI analysis in ' + mode + ' mode...',
+    '[+] Analysis complete'
+  ];
+
+  let i = 0;
+  const interval = setInterval(function() {
+    if (i < steps.length) {
+      const line = steps[i];
+      const status = line.startsWith('[+]') ? 'success'
+        : line.startsWith('[!]') ? 'error'
+        : line.startsWith('[~]') ? 'warning'
+        : 'checking';
+      terminalLog(line.replace(/^\[.\] /, ''), status);
+      i++;
+    } else {
+      clearInterval(interval);
+      setTimeout(function() {
+        terminalDone();
+        gaugeAnimate(mode === 'explorer' ? 72 : mode === 'analyst' ? 74 : 76);
+        setRiskMeta(target, 'Demo scan — example output for ' + mode + ' mode');
+        renderAIOutput(demos[mode], mode);
+        initScanChat([], 'domain', target, mode);
+      }, 600);
+    }
+  }, 280);
+}
